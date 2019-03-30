@@ -1,0 +1,21 @@
+{
+  "name": "deniz.co",
+  "version": "0.0.0",
+  "description": "Personal home page of Deniz Gurkaynak",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dgurkaynak/deniz.co.git"
+  },
+  "keywords": [],
+  "author": "Deniz Gurkaynak <dgurkaynak@gmail.com>",
+  "license": "ISC",
+  "private": true,
+  "bugs": {
+    "url": "https://github.com/dgurkaynak/deniz.co/issues"
+  },
+  "homepage": "https://github.com/dgurkaynak/deniz.co#readme"
+}
