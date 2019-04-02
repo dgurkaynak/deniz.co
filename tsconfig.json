@@ -4,7 +4,7 @@
       "noImplicitAny": true,
       "sourceMap": true,
       "allowSyntheticDefaultImports": true,
-      "module": "es6",
+      "module": "esnext",
       "target": "es5",
       "lib": ["dom", "es5", "scripthost", "es2015"],
       "allowJs": true
