@@ -1,4 +1,7 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
+
 
 module.exports = {
   entry: './src/index.ts',
@@ -18,5 +21,13 @@ module.exports = {
   },
   resolve: {
     extensions: [ '.tsx', '.ts', '.js' ]
-  }
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: 'src/index.html',
+      inject: 'body',
+      inlineSource: '.(js|css)$'
+    }),
+    new HtmlWebpackInlineSourcePlugin()
+  ]
 };
