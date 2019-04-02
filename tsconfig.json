@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+      "outDir": "./dist/",
+      "noImplicitAny": true,
+      "sourceMap": true,
+      "allowSyntheticDefaultImports": true,
+      "module": "es6",
+      "target": "es5",
+      "lib": ["dom", "es5", "scripthost", "es2015"],
+      "allowJs": true
+  }
+}

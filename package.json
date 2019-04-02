@@ -4,6 +4,8 @@
   "description": "Personal home page of Deniz Gurkaynak",
   "main": "index.js",
   "scripts": {
+    "build": "webpack --mode production",
+    "build:dev": "webpack --mode development",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,5 +19,11 @@
   "bugs": {
     "url": "https://github.com/dgurkaynak/deniz.co/issues"
   },
-  "homepage": "https://github.com/dgurkaynak/deniz.co#readme"
+  "homepage": "https://github.com/dgurkaynak/deniz.co#readme",
+  "devDependencies": {
+    "ts-loader": "5.3.3",
+    "typescript": "3.4.1",
+    "webpack": "4.29.6",
+    "webpack-cli": "3.3.0"
+  }
 }
