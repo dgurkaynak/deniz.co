@@ -53,5 +53,8 @@ module.exports = {
       new TerserJSPlugin({}),
       new OptimizeCSSAssetsPlugin({})
     ]
+  },
+  devServer: {
+    contentBase: './dist'
   }
 };
