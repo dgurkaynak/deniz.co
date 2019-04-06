@@ -1,5 +1,66 @@
 @import '../node_modules/normalize.css/normalize.css';
 
 html, body {
-  background: red;
+  width: 100%;
+  height: 100%;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 16px;
+}
+
+/***********
+ * VERTICAL *
+ ***********/
+@media
+  screen and (max-width: 767px),
+  screen and (max-height: 599px)
+{
+  body {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  main {
+    padding: 0 1.5em 1.5em 1.5em;
+  }
+
+  canvas {
+    order: -1;
+    width: 100%;
+    min-height: 50%;
+    background: #ccc;
+  }
+}
+
+/**************
+ * HORIZONTAL *
+ **************/
+@media screen and (min-width: 768px) and (min-height: 600px) {
+  body {
+    display: flex;
+    align-items: center;
+  }
+
+  main {
+    box-sizing: border-box;
+    width: 50%;
+    padding: 1.5em;
+    text-align: right;
+  }
+
+  canvas {
+    width: 50%;
+    height: 100%;
+    background: #ccc;
+  }
+}
+
+/**************
+ * ULTRA-WIDE *
+ **************/
+@media screen and (min-width: 1280px) {
+  body {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
 }
