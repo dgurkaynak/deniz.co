@@ -2,12 +2,10 @@ import './style.css';
 
 
 async function main() {
-  const SHOULD_LOAD_LAZY_SCRIPT = true;
-
-  if (SHOULD_LOAD_LAZY_SCRIPT) {
-    await import(/* webpackChunkName: "lazy-script" */ './lazy-script');
-    console.log('executed');
-  }
+  // TODO: Maybe check webgl support and fallback?
+  // TODO: Minimal loading effect maybe?
+  await import(/* webpackChunkName: "scene" */ './scene');
 }
+
 
 window.onload = main;
