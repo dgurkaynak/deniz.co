@@ -57,7 +57,12 @@ module.exports = {
     minimizer: [
       new TerserJSPlugin({}),
       new OptimizeCSSAssetsPlugin({})
-    ]
+    ],
+    splitChunks: {
+      cacheGroups: {
+        vendors: false
+      }
+    }
   },
   devServer: {
     contentBase: './dist'
