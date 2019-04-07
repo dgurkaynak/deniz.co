@@ -24,10 +24,14 @@ html, body {
     padding: 0 1.5em 1.5em 1.5em;
   }
 
-  canvas {
+  #canvas-container {
     order: -1;
     width: 100%;
     min-height: 50%;
+  }
+
+  canvas {
+    position: absolute;
   }
 }
 
@@ -47,9 +51,13 @@ html, body {
     text-align: right;
   }
 
-  canvas {
+  #canvas-container {
     width: 50%;
     height: 100%;
+  }
+
+  canvas {
+    position: absolute;
   }
 }
 

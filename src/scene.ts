@@ -3,8 +3,9 @@ import debounce from 'lodash/debounce';
 
 
 // Set-up the canvas
+const canvasContainer = document.getElementById('canvas-container');
 const canvas = document.getElementsByTagName('canvas')[0];
-const { offsetWidth: width, offsetHeight: height } = canvas;
+const { offsetWidth: width, offsetHeight: height } = canvasContainer;
 canvas.width = width;
 canvas.height = height;
 
@@ -54,7 +55,7 @@ function animate() {
  * Listen window resize
  */
 const onWindowResize = debounce(() => {
-  const { offsetWidth: width, offsetHeight: height } = canvas;
+  const { offsetWidth: width, offsetHeight: height } = canvasContainer;
   canvas.width = width;
   canvas.height = height;
   renderer.setSize(width, height);
