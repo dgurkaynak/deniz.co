@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/dgurkaynak/deniz.co#readme",
   "devDependencies": {
+    "@types/lodash": "4.14.123",
     "@types/three": "0.93.30",
     "css-loader": "2.1.1",
     "html-webpack-inline-source-plugin": "0.0.10",
@@ -40,6 +41,7 @@
     "webpack-dev-server": "3.2.1"
   },
   "dependencies": {
+    "lodash": "4.17.11",
     "normalize.css": "8.0.1",
     "three": "0.103.0"
   }

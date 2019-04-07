@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import debounce from 'lodash/debounce';
+
 
 // Fix canvas size
 const canvas = document.getElementsByTagName('canvas')[0];
@@ -37,4 +39,16 @@ function animate() {
   renderer.render(scene, camera);
 }
 
+const onWindowResize = debounce(() => {
+  const { offsetWidth: width, offsetHeight: height } = canvas;
+  canvas.width = width;
+  canvas.height = height;
+  renderer.setSize(width, height);
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+}, 500);
+
+window.addEventListener('resize', onWindowResize, false);
+
 animate();
+
