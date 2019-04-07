@@ -28,7 +28,6 @@ html, body {
     order: -1;
     width: 100%;
     min-height: 50%;
-    background: #ccc;
   }
 }
 
@@ -51,7 +50,6 @@ html, body {
   canvas {
     width: 50%;
     height: 100%;
-    background: #ccc;
   }
 }
 
