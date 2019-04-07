@@ -68,11 +68,13 @@ module.exports = {
     ],
     splitChunks: {
       cacheGroups: {
-        vendors: false
+        vendors: false // Disable it for better bundle anaylzing
       }
     }
   },
   devServer: {
-    contentBase: './dist'
+    compress: true,
+    contentBase: './dist',
+    host: '0.0.0.0'
   }
 };
