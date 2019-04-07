@@ -22,7 +22,7 @@ console.log = () => {};
 // Renderer
 const renderer = new THREE.WebGLRenderer({
   canvas,
-  antialias: window.devicePixelRatio == 1
+  antialias: true
 });
 renderer.setSize(width, height);
 renderer.setClearColor(0xffffff, 1);
