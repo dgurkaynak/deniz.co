@@ -76,6 +76,7 @@ const onWindowResize = debounce(() => {
   camera.updateProjectionMatrix();
 }, 500);
 window.addEventListener('resize', onWindowResize, false);
+window.addEventListener('orientationchange', onWindowResize, false);
 
 
 /**
@@ -97,6 +98,8 @@ function fitPlaneToScreen(distance: number, cameraFov: number, screenAspectRatio
  */
 function dispose() {
   cancelAnimationFrame(rAFId);
+  window.removeEventListener('resize', onWindowResize, false);
+  window.removeEventListener('orientationchange', onWindowResize, false);
   // TODO
 }
 
