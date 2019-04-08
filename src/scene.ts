@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import debounce from 'lodash/debounce';
 import SceneCard from './scene-card';
 
-import testBgImagePath from './images/test-bg.jpg';
-import testOverlayImagePath from './images/test-overlay.png';
+import testBgImagePath from './assets/images/test-bg.jpg';
+import testOverlayImagePath from './assets/images/test-overlay.png';
 
 
 // Set-up the canvas
