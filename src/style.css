@@ -59,6 +59,16 @@ html, body {
     min-height: 50%;
   }
 
+  @media (orientation:portrait) {
+    /* portrait-specific styles */
+  }
+
+  @media (orientation:landscape) {
+    #canvas-container {
+      min-height: 80%;
+    }
+  }
+
   canvas {
     position: absolute;
   }
