@@ -5,14 +5,7 @@ import { loadImage } from './utils';
 
 import denizImagePath from './assets/deniz.jpg';
 
-import imagePath1 from './assets/swaps/acdc1.jpg';
-import imagePath2 from './assets/swaps/ali-ihsan-varol1.jpg';
-import imagePath3 from './assets/swaps/friends1.jpg';
-const imagesPaths = [
-  imagePath1,
-  imagePath2,
-  imagePath3
-];
+import { originalImages } from './assets/swaps/index';
 
 
 const RESIZE_TO = [ 512, 512 ] as [ number, number ];
@@ -26,9 +19,7 @@ window.onload = async () => {
   const faceSwapper = new FaceSwapper(denizImage);
   await faceSwapper.init();
 
-  console.log('ready');
-
-  for (let imagePath of imagesPaths) {
+  for (let imagePath of originalImages) {
     const image = await loadImage(imagePath);
     const result = await faceSwapper.processImage(image);
     const resultResized = await result.resize(...RESIZE_TO);
