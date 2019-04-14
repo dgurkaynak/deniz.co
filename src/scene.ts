@@ -5,6 +5,9 @@ import SceneCard from './scene-card';
 import testBgImagePath from './assets/swaps/test-bg.jpg';
 import testOverlayImagePath from './assets/swaps/test-overlay.png';
 
+import { swaps } from './assets/swaps/index';
+console.log(swaps);
+
 
 // Set-up the canvas
 const canvasContainer = document.getElementById('canvas-container');
