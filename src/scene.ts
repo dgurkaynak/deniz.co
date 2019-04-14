@@ -29,10 +29,11 @@ console.log = () => {};
 // Renderer
 const renderer = new THREE.WebGLRenderer({
   canvas,
-  antialias: true
+  antialias: true,
+  alpha: true
 });
 renderer.setSize(width, height);
-renderer.setClearColor(0xffffff, 1);
+renderer.setClearColor(0xffffff, 0);
 
 // Bring back the console.log
 console.log = _consoleLog;
