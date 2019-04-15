@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import debounce from 'lodash/debounce';
+import shuffle from 'lodash/shuffle';
 import SceneCard from './scene-card';
+import SceneCardManager from './scene-card-manager';
 import { swaps } from './assets/swaps/index';
 
 
@@ -34,28 +36,33 @@ renderer.setClearColor(0xffffff, 0);
 console.log = _consoleLog;
 
 // Set-up scene
-const cards: SceneCard[] = [];
-(async () => {
-  const card = new SceneCard(await swaps[0].load());
-  await card.init();
-
-  const { width: scaleWidth } = fitPlaneToScreen(camera.position.z, camera.fov, width / height);
-  card.forEachMesh((m) => {
-    m.rotation.y = 20 * Math.PI / 180;
-    m.scale.setScalar(scaleWidth);
-  });
-
-  cards.push(card);
-  scene.add(card.group);
-})();
+const cards: SceneCard[] = shuffle(swaps).map((swap) => {
+  return new SceneCard(null, () => swap.load());
+});
+const cardManager = new SceneCardManager({
+  camera,
+  cards,
+  scene,
+  screenWidth: width,
+  screenHeight: height
+});
+cardManager.init().then(() => console.log('manager loaded'));
 
 
 /**
  * Animate
  */
 let rAFId: number;
+let frameCount = 0;
 function animate() {
   rAFId = requestAnimationFrame(animate);
+  frameCount++;
+
+  // Dummy scroll
+  camera.position.y -= 0.001; // TODO: Viewport'a gore scale olmali
+  if (frameCount % 30 == 0) {
+    cardManager.update();
+  }
 
   renderer.render(scene, camera);
 }
@@ -70,28 +77,14 @@ const onWindowResize = debounce(() => {
   canvas.height = height;
   renderer.setSize(width, height);
 
-  const { width: scaleWidth } = fitPlaneToScreen(camera.position.z, camera.fov, width / height);
-  cards.forEach(({ group }) => group.scale.setScalar(scaleWidth));
-
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
+
+  console.log('resize');
+  // TODO: Resize cards
 }, 500);
 window.addEventListener('resize', onWindowResize, false);
 window.addEventListener('orientationchange', onWindowResize, false);
-
-
-/**
- * Fit a plane to screen (snapping to sides)
- */
-function fitPlaneToScreen(distance: number, cameraFov: number, screenAspectRatio: number) {
-  const vFov = cameraFov * Math.PI / 180;
-  const planeHeightAtDistance = 2 * Math.tan(vFov / 2) * distance;
-  const planeWidthAtDistance = planeHeightAtDistance * screenAspectRatio;
-  return {
-    width: planeWidthAtDistance,
-    height: planeHeightAtDistance
-  };
-}
 
 
 /**

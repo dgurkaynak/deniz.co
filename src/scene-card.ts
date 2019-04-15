@@ -4,48 +4,52 @@ import { loadImage } from './utils';
 
 
 const PLANE_SEGMENT_COUNT = [ 40, 30 ];
-const PLANE_MAX_SIZE = [ 1, 0.75 ];
 
 
 export default class SceneCard {
   group = new THREE.Group();
+  aspectRatio: number;
+  isInited = false;
 
   private geometry: THREE.PlaneGeometry;
   private bgMaterial: THREE.MeshBasicMaterial;
   private bgTexture: THREE.Texture;
-  private bgMesh: THREE.Mesh;
+  public bgMesh: THREE.Mesh;
   private faceOverlayMaterial: THREE.MeshBasicMaterial;
   private faceOverlayTexture: THREE.Texture;
-  private faceOverlayMesh: THREE.Mesh;
+  public faceOverlayMesh: THREE.Mesh;
 
   private frustum = new THREE.Frustum();
   private cameraViewProjectionMatrix = new THREE.Matrix4();
 
 
-  constructor(public faceSwapResult: FaceSwapResult) {
-    // TODO
+  constructor(
+    public faceSwapResult?: FaceSwapResult,
+    private faceSwapResultGetter?: () => Promise<FaceSwapResult>
+  ) {
+    if (!this.faceSwapResult && !this.faceSwapResultGetter) {
+      throw new Error('If face swap result is not provided, getter method must be');
+    }
   }
 
 
   async init() {
+    if (this.isInited) {
+      return;
+    }
+
+    if (!this.faceSwapResult) {
+      this.faceSwapResult = await this.faceSwapResultGetter();
+    }
+
+    this.aspectRatio = this.faceSwapResult.originalWidth / this.faceSwapResult.originalHeight;
+
     this.bgTexture = new THREE.Texture(this.faceSwapResult.image);
     this.bgTexture.needsUpdate = true;
     this.faceOverlayTexture = new THREE.Texture(this.faceSwapResult.overlayImage);
     this.faceOverlayTexture.needsUpdate = true;
 
-    const { originalWidth: width, originalHeight: height } = this.faceSwapResult;
-
-    const scaleToFullWidth = PLANE_MAX_SIZE[0] / width;
-    const scaleToFullHeight = PLANE_MAX_SIZE[1] / height;
-    const scaleFactor = Math.min(scaleToFullWidth, scaleToFullHeight);
-
-    // TODO: Frame positioning
-    this.geometry = new THREE.PlaneGeometry(
-      width * scaleFactor,
-      height * scaleFactor,
-      PLANE_SEGMENT_COUNT[0],
-      PLANE_SEGMENT_COUNT[1]
-    );
+    this.geometry = new THREE.PlaneGeometry(1, 1, PLANE_SEGMENT_COUNT[0], PLANE_SEGMENT_COUNT[1]);
 
     this.bgMaterial = new THREE.MeshBasicMaterial({ map: this.bgTexture, transparent: true });
     this.faceOverlayMaterial = new THREE.MeshBasicMaterial({ map: this.faceOverlayTexture, transparent: true, opacity: 1 });
@@ -53,6 +57,8 @@ export default class SceneCard {
     this.faceOverlayMesh = new THREE.Mesh(this.geometry, this.faceOverlayMaterial);
 
     this.group.add(this.bgMesh, this.faceOverlayMesh);
+
+    this.isInited = true;
   }
 
 
