@@ -1,12 +1,7 @@
 import * as THREE from 'three';
 import debounce from 'lodash/debounce';
 import SceneCard from './scene-card';
-
-import testBgImagePath from './assets/swaps/test-bg.jpg';
-import testOverlayImagePath from './assets/swaps/test-overlay.png';
-
 import { swaps } from './assets/swaps/index';
-console.log(swaps);
 
 
 // Set-up the canvas
@@ -41,12 +36,14 @@ console.log = _consoleLog;
 // Set-up scene
 const cards: SceneCard[] = [];
 (async () => {
-  const card = new SceneCard(testBgImagePath, testOverlayImagePath);
+  const card = new SceneCard(await swaps[0].load());
   await card.init();
 
-  card.group.rotation.y = 20 * Math.PI / 180;
   const { width: scaleWidth } = fitPlaneToScreen(camera.position.z, camera.fov, width / height);
-  card.group.scale.setScalar(scaleWidth);
+  card.forEachMesh((m) => {
+    m.rotation.y = 20 * Math.PI / 180;
+    m.scale.setScalar(scaleWidth);
+  });
 
   cards.push(card);
   scene.add(card.group);
