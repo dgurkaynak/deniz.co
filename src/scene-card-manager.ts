@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import SceneCard from './scene-card';
-import { timingSafeEqual } from 'crypto';
 
 
 export default class SceneCardManager {
