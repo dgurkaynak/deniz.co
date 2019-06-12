@@ -45,6 +45,18 @@ export async function resizeImage(image: HTMLImageElement, width?: number, heigh
 }
 
 
+let base64Canvas: HTMLCanvasElement;
+export function getBase64OfImage(image: HTMLImageElement) {
+  if (!base64Canvas) base64Canvas = document.createElement('canvas');
+  const context = base64Canvas.getContext('2d');
+  base64Canvas.width = image.width;
+  base64Canvas.height = image.height;
+  context.clearRect(0, 0, image.width, image.height);
+  context.drawImage(image, 0, 0, image.width, image.height);
+  return base64Canvas.toDataURL('image/png');
+}
+
+
 export async function toBlobAsync(canvas: HTMLCanvasElement, ...args: any[]): Promise<Blob> {
   return new Promise((resolve, reject) => {
     // Polyfill

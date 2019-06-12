@@ -1,3 +1,5 @@
+import { getBoundingBox } from './utils';
+
 export default class FaceLandmarks {
   static createFromFaceApiDetection(detection: {
     landmarks: {
@@ -27,5 +29,10 @@ export default class FaceLandmarks {
 
   getInnerMouthPath() {
     return this.points.slice(60, 68);
+  }
+
+
+  getBoundingBox() {
+    return getBoundingBox(this.points);
   }
 }
