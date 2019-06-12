@@ -1,7 +1,12 @@
 import * as THREE from 'three';
 import debounce from 'lodash/debounce';
-import shuffle from 'lodash/shuffle';
-import { swaps } from './assets/swaps/index';
+
+import acdcBaseImagePath from './assets/preprocessed/acdc/1024x1024/base.png';
+import acdcOverlayImagePath from './assets/preprocessed/acdc/1024x1024/overlay.png';
+import acdcData from './assets/preprocessed/acdc/1024x1024/data.json';
+import FaceSwapResult from './face-swap-result';
+import { loadImage } from './utils';
+import FaceLandmarks from './face-landmarks';
 
 
 // Constants
@@ -54,8 +59,16 @@ let overlayImage: {
  * Main function
  */
 async function main() {
-  const swap = shuffle(swaps)[0];
-  const swapResult = await swap.load();
+  const faceData = acdcData.faces.map((rawFaceData: any) => {
+    return new FaceLandmarks(rawFaceData.points);
+  });
+  const swapResult = new FaceSwapResult(
+    await loadImage(acdcBaseImagePath),
+    await loadImage(acdcOverlayImagePath),
+    faceData,
+    acdcData.originalWidth,
+    acdcData.originalHeight
+  );
 
 
   if (!image) {
@@ -90,7 +103,7 @@ async function main() {
     overlayImage.texture = texture;
   }
 
-  const viewport = fitPlaneToScreen(camera.position.z - 3, camera.fov, width / height);
+  const viewport = fitPlaneToScreen(camera.position.z - 1, camera.fov, width / height);
   const aspectRatio = swapResult.originalWidth / swapResult.originalHeight;
 
   const cardScale = Math.min(

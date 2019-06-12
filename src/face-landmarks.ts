@@ -1,5 +1,6 @@
 import { getBoundingBox } from './utils';
 
+// Just one face!
 export default class FaceLandmarks {
   static createFromFaceApiDetection(detection: {
     landmarks: {
