@@ -2,6 +2,9 @@ import { getBoundingBox } from './utils';
 
 // Just one face!
 export default class FaceLandmarks {
+  boundingBox: { x: number, y: number, width: number, height: number };
+
+
   static createFromFaceApiDetection(detection: {
     landmarks: {
       positions: {
@@ -16,7 +19,7 @@ export default class FaceLandmarks {
 
 
   constructor(public points: [ number, number ][]) {
-    // no-op
+    this.boundingBox = getBoundingBox(points);
   }
 
 

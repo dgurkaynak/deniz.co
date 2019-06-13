@@ -94,7 +94,6 @@ async function processImage(name: string, url: string) {
 
     data.faces = data.faces.map((face) => {
       return {
-        boundingBox: face.getBoundingBox(),
         points: face.points.map(([x, y]) => {
           return [
             parseFloat(x.toFixed(DECIMAL_DIGIT_COUNT)),
