@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import debounce from 'lodash/debounce';
+import find from 'lodash/find';
 
 import acdcBaseImagePath from './assets/preprocessed/acdc/1024x1024/base.png';
 import acdcOverlayImagePath from './assets/preprocessed/acdc/1024x1024/overlay.png';
@@ -57,19 +58,19 @@ let overlayImage: {
   material: THREE.MeshBasicMaterial,
   mesh: THREE.Mesh
 };
-
+let swapResult: FaceSwapResult;
 
 /**
  * Main function
  */
 async function main() {
-  const faceData = acdcData.faces.map((rawFaceData: any) => {
+  const faceLandmarksArr = acdcData.faces.map((rawFaceData: any) => {
     return new FaceLandmarks(rawFaceData.points);
   });
-  const swapResult = new FaceSwapResult(
+  swapResult = new FaceSwapResult(
     await loadImage(acdcBaseImagePath),
     await loadImage(acdcOverlayImagePath),
-    faceData,
+    faceLandmarksArr,
     acdcData.originalWidth,
     acdcData.originalHeight
   );
@@ -143,13 +144,22 @@ const onMouseMove = debounce((e: MouseEvent) => {
   });
 
 
-  // Update mouse position
+  // Update mouse position and raycaster
   mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
   mousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
   raycaster.setFromCamera(mousePosition, camera);
+
+  // Check mouse whether on a face or not
+  // TODO: Do this maybe more throttled way?
   const intersects = raycaster.intersectObject(image.mesh);
-  // console.log('intersection', intersects[0] && intersects[0].uv);
+  if (intersects.length > 0) {
+    const uv = intersects[0].uv;
+    const match = find(swapResult.faceBoundingBoxesUV, (faceBoundingBoxUV) => {
+      return uv.x >= faceBoundingBoxUV.x && uv.x <= (faceBoundingBoxUV.x + faceBoundingBoxUV.width) &&
+        uv.y >= faceBoundingBoxUV.y && uv.y <= (faceBoundingBoxUV.y + faceBoundingBoxUV.height);
+    });
+    // console.log('match', match);
+  }
 }, 5);
 document.body.addEventListener('mousemove', onMouseMove, false);
 

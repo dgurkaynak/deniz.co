@@ -24,7 +24,7 @@ export default class FaceSwapResult {
         width: faceLandmark.boundingBox.width / this.width,
         y: 1 - ((faceLandmark.boundingBox.y + faceLandmark.boundingBox.height) / this.height),
         height: faceLandmark.boundingBox.height / this.height
-      };;
+      };
     });
   }
 
