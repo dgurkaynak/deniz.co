@@ -3,6 +3,9 @@ import { resizeImage } from './utils';
 
 
 export default class FaceSwapResult {
+  faceBoundingBoxesUV: { x: number, y: number, width: number, height: number }[];
+
+
   constructor(
     public image: HTMLImageElement,
     public overlayImage: HTMLImageElement,
@@ -12,6 +15,17 @@ export default class FaceSwapResult {
   ) {
     this.originalWidth = originalWidth || image.width;
     this.originalHeight = originalHeight || image.height;
+
+    // Bounding boxes are already calculated in faceLandmark, but they're cartesian coordinates
+    // Convert them to UV coordinate system and cache
+    this.faceBoundingBoxesUV = this.faces.map((faceLandmark) => {
+      return {
+        x: faceLandmark.boundingBox.x / this.width,
+        width: faceLandmark.boundingBox.width / this.width,
+        y: 1 - ((faceLandmark.boundingBox.y + faceLandmark.boundingBox.height) / this.height),
+        height: faceLandmark.boundingBox.height / this.height
+      };;
+    });
   }
 
 
