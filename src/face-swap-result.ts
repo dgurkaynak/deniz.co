@@ -20,8 +20,8 @@ export default class FaceSwapResult {
     const newImage = await resizeImage(this.image, width, height);
     const newOverlayImage = await resizeImage(this.overlayImage, width, height);
 
-    const scaleX = width / this.image.width;
-    const scaleY = height / this.image.height;
+    const scaleX = width / this.width;
+    const scaleY = height / this.height;
     const newFaces = this.faces.map((face) => {
       const newPoints = face.points.map(([ x, y ]) => {
         return [
@@ -41,4 +41,8 @@ export default class FaceSwapResult {
       this.originalHeight
     );
   }
+
+
+  get width() { return this.image.width; }
+  get height() { return this.image.height; }
 }
