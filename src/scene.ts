@@ -41,6 +41,10 @@ renderer.setClearColor(0xffffff, 0);
 // Bring back the console.log
 console.log = _consoleLog;
 
+// Ray casting stuff
+const mousePosition = new THREE.Vector2();
+const raycaster = new THREE.Raycaster();
+
 // Set-up scene
 const geometry = new THREE.PlaneGeometry(1, 1, PLANE_SEGMENT_COUNT[0], PLANE_SEGMENT_COUNT[1]);
 let image: {
@@ -71,7 +75,7 @@ async function main() {
   );
 
 
-  if (!image) {
+  {
     const texture = new THREE.Texture(swapResult.image);
     texture.needsUpdate = true;
     const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
@@ -79,15 +83,9 @@ async function main() {
     scene.add(mesh);
 
     image = { texture, material, mesh };
-  } else {
-    const texture = new THREE.Texture(swapResult.image);
-    texture.needsUpdate = true;
-    image.material.map = texture;
-    image.texture.dispose();
-    image.texture = texture;
   }
 
-  if (!overlayImage) {
+  {
     const texture = new THREE.Texture(swapResult.overlayImage);
     texture.needsUpdate = true;
     const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
@@ -95,12 +93,6 @@ async function main() {
     scene.add(mesh);
 
     overlayImage = { texture, material, mesh };
-  } else {
-    const texture = new THREE.Texture(swapResult.overlayImage);
-    texture.needsUpdate = true;
-    overlayImage.material.map = texture;
-    overlayImage.texture.dispose();
-    overlayImage.texture = texture;
   }
 
   const viewport = fitPlaneToScreen(camera.position.z - 1, camera.fov, width / height);
@@ -112,14 +104,9 @@ async function main() {
   ); // actually width (because card size is 1x1)
   const cardScaleY = cardScale / aspectRatio; // actually height (because card size is 1x1)
 
-  // Offset self-half
-  // y -= cardScaleY / 2;
-
   [ image.mesh, overlayImage.mesh ].forEach((m) => {
-    // m.rotation.y = 30 * Math.PI / 180;
     m.scale.setX(cardScale);
     m.scale.setY(cardScaleY);
-    // m.position.setY(0);
   });
 
   (window as any).imageMesh = image.mesh;
@@ -154,6 +141,15 @@ const onMouseMove = debounce((e: MouseEvent) => {
     m.rotation.x = rotationX;
     m.rotation.y = rotationY;
   });
+
+
+  // Update mouse position
+  mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mousePosition, camera);
+  const intersects = raycaster.intersectObject(image.mesh);
+  // console.log('intersection', intersects[0] && intersects[0].uv);
 }, 5);
 document.body.addEventListener('mousemove', onMouseMove, false);
 
