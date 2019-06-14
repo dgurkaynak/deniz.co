@@ -83,13 +83,18 @@ export default class SceneImage {
 
     // Bounding boxes are already calculated in faceLandmark, but they're cartesian coordinates
     // Convert them to UV coordinate system and cache
-    // TODO: Support margin to increase ?!?!?!
+    const hitAreaIncreaseFactor = 0.5;
     this.faceBoundingBoxesUV = this.faceSwapResult.faces.map((faceLandmark) => {
+      const bb = faceLandmark.boundingBox;
+      const widthIncrease = bb.width * hitAreaIncreaseFactor;
+      const newWidth = bb.width * (1 + hitAreaIncreaseFactor);
+      const heightIncrease = bb.height * hitAreaIncreaseFactor;
+      const newHeight = bb.height * (1 + hitAreaIncreaseFactor);
       return {
-        x: faceLandmark.boundingBox.x / this.faceSwapResult.width,
-        width: faceLandmark.boundingBox.width / this.faceSwapResult.width,
-        y: 1 - ((faceLandmark.boundingBox.y + faceLandmark.boundingBox.height) / this.faceSwapResult.height),
-        height: faceLandmark.boundingBox.height / this.faceSwapResult.height
+        x: (bb.x - (widthIncrease / 2)) / this.faceSwapResult.width,
+        width: newWidth / this.faceSwapResult.width,
+        y: 1 - ((bb.y + newHeight - (heightIncrease / 2)) / this.faceSwapResult.height),
+        height: newHeight / this.faceSwapResult.height
       };
     });
   }
