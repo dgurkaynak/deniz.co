@@ -5,7 +5,7 @@ import findIndex from 'lodash/findIndex';
 import * as TWEEN from '@tweenjs/tween.js';
 
 
-const PLANE_SEGMENT_COUNT = [ 40, 30 ];
+const PLANE_SEGMENT_COUNT = [ 50, 50 ];
 
 
 export default class SceneImage {
@@ -145,7 +145,7 @@ export default class SceneImage {
     tween.onUpdate(({ opacity, noiseFactor }) => {
       this.overlayMaterials[faceIndex].opacity = opacity;
       faceVerticeIndexes.forEach((index) => {
-        this.geometry.vertices[index].z = Math.random() * 0.5 * noiseFactor;
+        this.geometry.vertices[index].z = Math.random() * 0.3 * noiseFactor;
       });
       this.geometry.verticesNeedUpdate = true;
     });
@@ -172,7 +172,7 @@ export default class SceneImage {
     tween.onUpdate(({ opacity, noiseFactor }) => {
       this.overlayMaterials[faceIndex].opacity = opacity;
       faceVerticeIndexes.forEach((index) => {
-        this.geometry.vertices[index].z = Math.random() * 0.5 * noiseFactor;
+        this.geometry.vertices[index].z = -Math.random() * 0.3 * noiseFactor;
       });
       this.geometry.verticesNeedUpdate = true;
     });
