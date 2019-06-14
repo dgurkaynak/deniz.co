@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import debounce from 'lodash/debounce';
-// import * as TWEEN from '@tweenjs/tween.js';
+import * as TWEEN from '@tweenjs/tween.js';
 
 import acdcBaseImagePath from './assets/preprocessed/acdc/1024x1024/base.png';
 import acdcOverlayImagePath from './assets/preprocessed/acdc/1024x1024/overlay.png';
@@ -90,9 +90,11 @@ async function main() {
  */
 let rAFId: number;
 let frameCount = 0;
-function animate() {
+function animate(time: number) {
   rAFId = requestAnimationFrame(animate);
   frameCount++;
+
+  (TWEEN as any).default.update(time);
 
   renderer.render(scene, camera);
 }
@@ -177,5 +179,7 @@ function fitPlaneToScreen(distance: number, cameraFov: number, screenAspectRatio
  * Go go go
  */
 main()
-  .then(() => animate())
+  .then(() => {
+    rAFId = requestAnimationFrame(animate);
+  })
   .catch((err) => console.error(err));

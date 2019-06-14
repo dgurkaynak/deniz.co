@@ -2,6 +2,7 @@ import FaceSwapResult from './face-swap-result';
 import * as THREE from 'three';
 import { canvasToURL } from './utils';
 import findIndex from 'lodash/findIndex';
+import * as TWEEN from '@tweenjs/tween.js';
 
 
 const PLANE_SEGMENT_COUNT = [ 40, 30 ];
@@ -24,6 +25,7 @@ export default class SceneImage {
   faceBoundingBoxesUV: { x: number, y: number, width: number, height: number }[];
 
   hoveredFaceIndex = -1;
+  faceTweens: { [ key: string ]: TWEEN.Tween } = {};
 
 
   constructor(faceSwapResult: FaceSwapResult) {
@@ -121,26 +123,56 @@ export default class SceneImage {
 
 
   private onFaceHover(faceIndex: number) {
-    console.log('hover', faceIndex);
-    this.overlayMaterials[faceIndex].opacity = 0;
+    const currentTween = this.faceTweens[faceIndex];
+    if (currentTween) currentTween.stop();
 
-    // const faceVerticeIndexes = faceVertices[faceIndex];
-    // faceVerticeIndexes.forEach((index) => {
-    //   geometry.vertices[index].z = Math.random();
-    // });
-    // geometry.verticesNeedUpdate = true;
+    const faceVerticeIndexes = this.faceVertices[faceIndex];
+
+    const tween = new TWEEN.Tween({
+      opacity: 1,
+      noiseFactor: 0
+    }).to({
+      opacity: [ 0, 0 ],
+      noiseFactor: [ 1, 0 ]
+    }, 500);
+    this.faceTweens[faceIndex] = tween;
+
+    tween.onUpdate(({ opacity, noiseFactor }) => {
+      this.overlayMaterials[faceIndex].opacity = opacity;
+      faceVerticeIndexes.forEach((index) => {
+        this.geometry.vertices[index].z = Math.random() * 0.5 * noiseFactor;
+      });
+      this.geometry.verticesNeedUpdate = true;
+    });
+
+    tween.start();
   }
 
 
   private onFaceUnhover(faceIndex: number) {
-    console.log('unhover', faceIndex);
-    this.overlayMaterials[faceIndex].opacity = 1;
+    const currentTween = this.faceTweens[faceIndex];
+    if (currentTween) currentTween.stop();
 
-    // const faceVerticeIndexes = faceVertices[faceIndex];
-    // faceVerticeIndexes.forEach((index) => {
-    //   geometry.vertices[index].z = 0;
-    // });
-    // geometry.verticesNeedUpdate = true;
+    const faceVerticeIndexes = this.faceVertices[faceIndex];
+
+    const tween = new TWEEN.Tween({
+      opacity: 0,
+      noiseFactor: 0
+    }).to({
+      opacity: [ 1, 1 ],
+      noiseFactor: [ 1, 0 ]
+    }, 500);
+    this.faceTweens[faceIndex] = tween;
+
+    tween.onUpdate(({ opacity, noiseFactor }) => {
+      this.overlayMaterials[faceIndex].opacity = opacity;
+      faceVerticeIndexes.forEach((index) => {
+        this.geometry.vertices[index].z = Math.random() * 0.5 * noiseFactor;
+      });
+      this.geometry.verticesNeedUpdate = true;
+    });
+
+    tween.start();
   }
 
 
