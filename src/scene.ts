@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import debounce from 'lodash/debounce';
-import find from 'lodash/find';
+// import * as TWEEN from '@tweenjs/tween.js';
 
 import acdcBaseImagePath from './assets/preprocessed/acdc/1024x1024/base.png';
 import acdcOverlayImagePath from './assets/preprocessed/acdc/1024x1024/overlay.png';
@@ -8,6 +8,7 @@ import acdcData from './assets/preprocessed/acdc/1024x1024/data.json';
 import FaceSwapResult from './face-swap-result';
 import { loadImage } from './utils';
 import FaceLandmarks from './face-landmarks';
+import SceneImage from './scene-image';
 
 
 // Constants
@@ -47,54 +48,22 @@ const mousePosition = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 
 // Set-up scene
-const geometry = new THREE.PlaneGeometry(1, 1, PLANE_SEGMENT_COUNT[0], PLANE_SEGMENT_COUNT[1]);
-let image: {
-  texture: THREE.Texture,
-  material: THREE.MeshBasicMaterial,
-  mesh: THREE.Mesh
-};
-let overlayImage: {
-  texture: THREE.Texture,
-  material: THREE.MeshBasicMaterial,
-  mesh: THREE.Mesh
-};
-let swapResult: FaceSwapResult;
+let sceneImage: SceneImage;
 
 /**
  * Main function
  */
 async function main() {
-  const faceLandmarksArr = acdcData.faces.map((rawFaceData: any) => {
+  const faceLandmarksArr: FaceLandmarks[] = acdcData.faces.map((rawFaceData: any) => {
     return new FaceLandmarks(rawFaceData.points);
   });
-  swapResult = new FaceSwapResult(
+  const swapResult = new FaceSwapResult(
     await loadImage(acdcBaseImagePath),
     await loadImage(acdcOverlayImagePath),
     faceLandmarksArr,
     acdcData.originalWidth,
     acdcData.originalHeight
   );
-
-
-  {
-    const texture = new THREE.Texture(swapResult.image);
-    texture.needsUpdate = true;
-    const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
-    const mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
-
-    image = { texture, material, mesh };
-  }
-
-  {
-    const texture = new THREE.Texture(swapResult.overlayImage);
-    texture.needsUpdate = true;
-    const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
-    const mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
-
-    overlayImage = { texture, material, mesh };
-  }
 
   const viewport = fitPlaneToScreen(camera.position.z - 1, camera.fov, width / height);
   const aspectRatio = swapResult.originalWidth / swapResult.originalHeight;
@@ -105,14 +74,15 @@ async function main() {
   ); // actually width (because card size is 1x1)
   const cardScaleY = cardScale / aspectRatio; // actually height (because card size is 1x1)
 
-  [ image.mesh, overlayImage.mesh ].forEach((m) => {
-    m.scale.setX(cardScale);
-    m.scale.setY(cardScaleY);
+  sceneImage = new SceneImage(swapResult);
+  await sceneImage.init();
+  sceneImage.forEachMesh((mesh) => {
+    scene.add(mesh);
+
+    mesh.scale.setX(cardScale);
+    mesh.scale.setY(cardScaleY);
   });
-
-  (window as any).imageMesh = image.mesh;
 }
-
 
 
 /**
@@ -133,12 +103,11 @@ function animate() {
  * TODO: Touch events
  */
 const onMouseMove = debounce((e: MouseEvent) => {
-  if (!image || !overlayImage) return;
   const { clientX: x, clientY: y } = e;
   const { innerWidth: width, innerHeight: height } = window;
   const rotationX = ((y / height) - 0.5) * (15 * Math.PI / 180);
   const rotationY = ((x / width) - 0.5) * (30 * Math.PI / 180);
-  [ image.mesh, overlayImage.mesh ].forEach((m) => {
+  sceneImage && sceneImage.forEachMesh((m) => {
     m.rotation.x = rotationX;
     m.rotation.y = rotationY;
   });
@@ -151,14 +120,10 @@ const onMouseMove = debounce((e: MouseEvent) => {
 
   // Check mouse whether on a face or not
   // TODO: Do this maybe more throttled way?
-  const intersects = raycaster.intersectObject(image.mesh);
+  if (!sceneImage) return;
+  const intersects = raycaster.intersectObject(sceneImage.baseMesh);
   if (intersects.length > 0) {
-    const uv = intersects[0].uv;
-    const match = find(swapResult.faceBoundingBoxesUV, (faceBoundingBoxUV) => {
-      return uv.x >= faceBoundingBoxUV.x && uv.x <= (faceBoundingBoxUV.x + faceBoundingBoxUV.width) &&
-        uv.y >= faceBoundingBoxUV.y && uv.y <= (faceBoundingBoxUV.y + faceBoundingBoxUV.height);
-    });
-    // console.log('match', match);
+    sceneImage.onMouseMove(intersects[0].uv);
   }
 }, 5);
 document.body.addEventListener('mousemove', onMouseMove, false);
