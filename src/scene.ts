@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import debounce from 'lodash/debounce';
 import * as TWEEN from '@tweenjs/tween.js';
 
-import acdcBaseImagePath from './assets/preprocessed/acdc/1024x1024/base.png';
-import acdcOverlayImagePath from './assets/preprocessed/acdc/1024x1024/overlay.png';
-import acdcData from './assets/preprocessed/acdc/1024x1024/data.json';
+import apollo11BaseImagePath from './assets/preprocessed/apollo11/1024x1024/base.png';
+import apollo11OverlayImagePath from './assets/preprocessed/apollo11/1024x1024/overlay.png';
+import apollo11Data from './assets/preprocessed/apollo11/1024x1024/data.json';
 import FaceSwapResult from './face-swap-result';
 import { loadImage } from './utils';
 import FaceLandmarks from './face-landmarks';
@@ -54,15 +54,15 @@ let sceneImage: SceneImage;
  * Main function
  */
 async function main() {
-  const faceLandmarksArr: FaceLandmarks[] = acdcData.faces.map((rawFaceData: any) => {
+  const faceLandmarksArr: FaceLandmarks[] = apollo11Data.faces.map((rawFaceData: any) => {
     return new FaceLandmarks(rawFaceData.points);
   });
   const swapResult = new FaceSwapResult(
-    await loadImage(acdcBaseImagePath),
-    await loadImage(acdcOverlayImagePath),
+    await loadImage(apollo11BaseImagePath),
+    await loadImage(apollo11OverlayImagePath),
     faceLandmarksArr,
-    acdcData.originalWidth,
-    acdcData.originalHeight
+    apollo11Data.originalWidth,
+    apollo11Data.originalHeight
   );
 
   const viewport = fitPlaneToScreen(camera.position.z - 1, camera.fov, width / height);
