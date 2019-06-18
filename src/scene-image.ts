@@ -55,7 +55,8 @@ export default class SceneImage {
       // TODO: THREE.CanvasTexture always updates the canvas, that's why convert canvas to image
       prepareAlphaMask({
         canvas: { width: this.faceSwapResult.width, height: this.faceSwapResult.height },
-        opaqueBoundingBox: faceLandmarks.boundingBox
+        opaqueBoundingBox: faceLandmarks.boundingBox,
+        scale: 0.25
       });
       const alphaMapImage = new Image();
       alphaMapImage.src = await canvasToURL(alphaMaskCanvas);
@@ -200,15 +201,21 @@ function prepareAlphaMask(options: {
     y: number,
     width: number,
     height: number
-  }
+  },
+  scale: number
 }) {
-  alphaMaskCanvas.width = options.canvas.width;
-  alphaMaskCanvas.height = options.canvas.height;
+  alphaMaskCanvas.width = options.canvas.width * options.scale;
+  alphaMaskCanvas.height = options.canvas.height * options.scale;
   const cc = alphaMaskCanvas.getContext('2d');
 
   cc.fillStyle = '#000';
-  cc.fillRect(0, 0, options.canvas.width, options.canvas.height);
+  cc.fillRect(0, 0, options.canvas.width * options.scale, options.canvas.height * options.scale);
 
   cc.fillStyle = '#fff';
-  cc.fillRect(options.opaqueBoundingBox.x, options.opaqueBoundingBox.y, options.opaqueBoundingBox.width, options.opaqueBoundingBox.height);
+  cc.fillRect(
+    options.opaqueBoundingBox.x * options.scale,
+    options.opaqueBoundingBox.y * options.scale,
+    options.opaqueBoundingBox.width * options.scale,
+    options.opaqueBoundingBox.height * options.scale
+  );
 }
