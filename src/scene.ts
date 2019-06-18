@@ -32,9 +32,10 @@ console.log = () => {};
 // Renderer
 const renderer = new THREE.WebGLRenderer({
   canvas,
-  antialias: true,
+  antialias: window.devicePixelRatio == 1,
   alpha: true
 });
+renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(width, height);
 renderer.setClearColor(0xffffff, 0);
 
