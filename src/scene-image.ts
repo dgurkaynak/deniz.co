@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { canvasToURL } from './utils';
 import findIndex from 'lodash/findIndex';
 import * as TWEEN from '@tweenjs/tween.js';
+import Animator from './animator';
 
 
 const PLANE_SEGMENT_COUNT = [ 50, 50 ];
@@ -152,6 +153,7 @@ export default class SceneImage {
     });
 
     tween.start();
+    Animator.getGlobal().start(500);
   }
 
 
@@ -179,6 +181,7 @@ export default class SceneImage {
     });
 
     tween.start();
+    Animator.getGlobal().start(500);
   }
 
 

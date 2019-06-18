@@ -5,7 +5,7 @@ export default class Animator {
   private id: number;
   private handler: (time?: number) => void;
   private animateBinded: (time: number) => void;
-  private shouldStop = false;
+  private stopAfter = 0; // 0 means no-stop, go infinite. If otherwise must be timestamp.
   private isAnimating = false;
 
 
@@ -24,7 +24,7 @@ export default class Animator {
 
     this.animateBinded = (time: number) => {
       this.handler(time);
-      if (this.shouldStop) {
+      if (this.stopAfter && Date.now() >= this.stopAfter) {
         this.stop();
       } else {
         this.animate();
@@ -38,10 +38,27 @@ export default class Animator {
   }
 
 
-  start(justOneStep = false) {
-    if (this.isAnimating) return;
+  step() {
+    this.start(0);
+  }
+
+
+  /**
+   * start(-1) => go infinite
+   * start(0) => render one-time and then stop
+   * start(500) => render for 500ms
+   */
+  start(duration = -1) {
+    if (this.isAnimating) {
+      // If duration is set, delay it
+      if (this.stopAfter && duration > 0) {
+        this.stopAfter = Math.max(Date.now() + duration, this.stopAfter);
+      }
+      return;
+    }
+
     this.isAnimating = true;
-    this.shouldStop = justOneStep;
+    this.stopAfter = duration == -1 ? 0 : Date.now() + duration;
     this.animate();
   }
 
@@ -49,7 +66,7 @@ export default class Animator {
   stop() {
     if (!this.isAnimating) return;
     this.isAnimating = false;
-    this.shouldStop = false;
+    this.stopAfter = 0;
     cancelAnimationFrame(this.id);
   }
 

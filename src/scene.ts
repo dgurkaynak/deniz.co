@@ -158,6 +158,8 @@ function onMouseOrTouchMove(x: number, y: number) {
   if (intersects.length > 0) {
     sceneImage.onMouseMove(intersects[0].uv);
   }
+
+  animator.step();
 }
 
 
@@ -174,6 +176,8 @@ const onWindowResize = throttle(() => {
 
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
+
+  // animator.step();
 
   console.log('resize');
   // TODO: Resize cards
@@ -211,5 +215,5 @@ function fitPlaneToScreen(distance: number, cameraFov: number, screenAspectRatio
  * Go go go
  */
 main()
-  .then(() => animator.start())
+  .then(() => animator.step())
   .catch((err) => console.error(err));
