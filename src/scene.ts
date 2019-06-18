@@ -87,7 +87,7 @@ async function main() {
 
   sceneImage = new SceneImage(swapResult);
   await sceneImage.init();
-  sceneImage.forEachMesh((mesh) => {
+  sceneImage.allMeshes.forEach((mesh) => {
     scene.add(mesh);
 
     mesh.scale.setX(cardScale);
@@ -141,7 +141,7 @@ function onMouseOrTouchMove(x: number, y: number) {
   const { innerWidth: width, innerHeight: height } = window;
   const rotationX = ((y / height) - 0.5) * (15 * Math.PI / 180);
   const rotationY = ((x / width) - 0.5) * (30 * Math.PI / 180);
-  sceneImage && sceneImage.forEachMesh((m) => {
+  sceneImage && sceneImage.allMeshes.forEach((m) => {
     m.rotation.x = rotationX;
     m.rotation.y = rotationY;
   });
