@@ -183,7 +183,28 @@ export default class SceneImage {
 
 
   dispose() {
-    // TODO
+    this.geometry.dispose();
+    this.geometry = null;
+
+    this.baseMaterial.dispose();
+    this.baseMaterial = null;
+    this.baseTexture.dispose();
+    this.baseTexture = null;
+
+    this.overlayMaterials.forEach(m => m.dispose());
+    this.overlayMaterials = null;
+    this.overlayTexture.dispose();
+    this.overlayTexture = null;
+    this.overlayAlphaMaps.forEach(t => t.dispose());
+    this.overlayAlphaMaps = null;
+
+    this.overlayMeshes = null;
+    this.allMeshes = [];
+
+    this.faceVertices = null;
+    this.faceBoundingBoxesUV = null;
+
+    Object.values(this.faceTweens).forEach(tween => tween.stop());
   }
 }
 
