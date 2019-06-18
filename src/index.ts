@@ -1,6 +1,10 @@
 import './style.css';
 import { isWebGLSupported } from './utils';
+import { disableBodyScroll } from 'body-scroll-lock';
 
+
+// Disable body scroll
+disableBodyScroll(document.body);
 
 // Add javascript-enabled class
 document.body.classList.add('javascript-enabled');

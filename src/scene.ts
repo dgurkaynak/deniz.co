@@ -100,10 +100,28 @@ function animate(time: number) {
 
 /**
  * Listen mouse move event
- * TODO: Touch events
  */
 const onMouseMove = debounce((e: MouseEvent) => {
-  const { clientX: x, clientY: y } = e;
+  onMouseOrTouchMove(e.clientX, e.clientY);
+}, 5);
+document.body.addEventListener('mousemove', onMouseMove, false);
+
+
+/**
+ * Listen touch move event
+ */
+const onTouchMove = debounce((e: TouchEvent) => {
+  const touch = e.changedTouches.length > 0 ? e.changedTouches[0] : e.touches[0];
+  if (!touch) return;
+  onMouseOrTouchMove(touch.clientX, touch.clientY);
+}, 5);
+document.body.addEventListener('touchmove', onTouchMove, false);
+
+
+/**
+ * Core mousemove/touchmove handler
+ */
+function onMouseOrTouchMove(x: number, y: number) {
   const { innerWidth: width, innerHeight: height } = window;
   const rotationX = ((y / height) - 0.5) * (15 * Math.PI / 180);
   const rotationY = ((x / width) - 0.5) * (30 * Math.PI / 180);
@@ -114,8 +132,8 @@ const onMouseMove = debounce((e: MouseEvent) => {
 
 
   // Update mouse position and raycaster
-  mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
-  mousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  mousePosition.x = (x / window.innerWidth) * 2 - 1;
+  mousePosition.y = -(y / window.innerHeight) * 2 + 1;
   raycaster.setFromCamera(mousePosition, camera);
 
   // Check mouse whether on a face or not
@@ -125,8 +143,7 @@ const onMouseMove = debounce((e: MouseEvent) => {
   if (intersects.length > 0) {
     sceneImage.onMouseMove(intersects[0].uv);
   }
-}, 5);
-document.body.addEventListener('mousemove', onMouseMove, false);
+}
 
 
 /**
