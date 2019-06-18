@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import throttle from 'lodash/throttle';
 import * as TWEEN from '@tweenjs/tween.js';
 import Stats from 'stats.js';
+import Animator from './animator';
 
 import apollo11BaseImagePath from './assets/preprocessed/apollo11/1024x1024/base.png';
 import apollo11OverlayImagePath from './assets/preprocessed/apollo11/1024x1024/overlay.png';
@@ -99,9 +100,8 @@ async function main() {
 /**
  * Animate
  */
-let rAFId: number;
 let frameCount = 0;
-function animate(time: number) {
+const animator = new Animator((time) => {
   stats && stats.begin();
   frameCount++;
 
@@ -110,8 +110,8 @@ function animate(time: number) {
   renderer.render(scene, camera);
 
   stats && stats.end();
-  rAFId = requestAnimationFrame(animate);
-}
+});
+Animator.setGlobal(animator);
 
 
 /**
@@ -186,7 +186,7 @@ window.addEventListener('orientationchange', onWindowResize, false);
  * Keep the environment clean & beatiful
  */
 function dispose() {
-  cancelAnimationFrame(rAFId);
+  animator.stop();
   window.removeEventListener('resize', onWindowResize, false);
   window.removeEventListener('orientationchange', onWindowResize, false);
   // TODO
@@ -211,7 +211,5 @@ function fitPlaneToScreen(distance: number, cameraFov: number, screenAspectRatio
  * Go go go
  */
 main()
-  .then(() => {
-    rAFId = requestAnimationFrame(animate);
-  })
+  .then(() => animator.start())
   .catch((err) => console.error(err));
