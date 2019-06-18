@@ -16,7 +16,7 @@ import SceneImage from './scene-image';
 // Set-up the canvas
 const canvasContainer = document.getElementById('canvas-container');
 const canvas = document.getElementsByTagName('canvas')[0];
-const { offsetWidth: width, offsetHeight: height } = canvasContainer;
+let { offsetWidth: width, offsetHeight: height } = canvasContainer;
 canvas.width = width;
 canvas.height = height;
 
@@ -138,7 +138,6 @@ document.body.addEventListener('touchmove', onTouchMove, false);
  * Core mousemove/touchmove handler
  */
 function onMouseOrTouchMove(x: number, y: number) {
-  const { innerWidth: width, innerHeight: height } = window;
   const rotationX = ((y / height) - 0.5) * (15 * Math.PI / 180);
   const rotationY = ((x / width) - 0.5) * (30 * Math.PI / 180);
   sceneImage && sceneImage.allMeshes.forEach((m) => {
@@ -148,8 +147,8 @@ function onMouseOrTouchMove(x: number, y: number) {
 
 
   // Update mouse position and raycaster
-  mousePosition.x = (x / window.innerWidth) * 2 - 1;
-  mousePosition.y = -(y / window.innerHeight) * 2 + 1;
+  mousePosition.x = (x / width) * 2 - 1;
+  mousePosition.y = -(y / height) * 2 + 1;
   raycaster.setFromCamera(mousePosition, camera);
 
   // Check mouse whether on a face or not
@@ -166,7 +165,9 @@ function onMouseOrTouchMove(x: number, y: number) {
  * Listen window resize
  */
 const onWindowResize = throttle(() => {
-  const { offsetWidth: width, offsetHeight: height } = canvasContainer;
+  const { offsetWidth: width_, offsetHeight: height_ } = canvasContainer;
+  width = width_;
+  height = height_;
   canvas.width = width;
   canvas.height = height;
   renderer.setSize(width, height);
