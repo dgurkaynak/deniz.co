@@ -57,16 +57,53 @@ a:hover {
   z-index: -1;
 }
 
-/* h3 {
+main {
+  background: rgba(255, 255, 255, 0.9);
+  padding-bottom: 0.5em;
+}
+
+.javascript-enabled main {
+  max-height: 2.3em;
+  overflow: hidden;
+  transition: max-height 0.25s ease-in;
+}
+
+main.opened {
+  max-height: 100%;
+}
+
+#heading-text {
   margin: 0.6em;
   display: inline-block;
 }
 
-nav {
+/* If js enabled, there is about button, so add a margin */
+.javascript-enabled #heading-text {
+  margin: 0.6em 3em 0.6em 0.6em;
+}
+
+#about-button {
   position: absolute;
   top: 0;
   right: 0;
+  padding: 0.75em;
+  text-decoration: underline;
+  cursor: pointer;
 }
+
+#about-button:hover {
+  text-decoration: none;
+}
+
+#about-text {
+  margin: 0.8em;
+}
+
+/* nav {
+  position: absolute;
+  top: 0;
+  right: 0;
+} */
 
 ul {
   list-style-type: none;
@@ -85,4 +122,4 @@ li:first-child {
 
 li:last-child {
   margin-right: 0;
-} */
+}
