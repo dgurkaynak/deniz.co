@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import debounce from 'lodash/debounce';
 import * as TWEEN from '@tweenjs/tween.js';
+import Stats from 'stats.js';
 
 import apollo11BaseImagePath from './assets/preprocessed/apollo11/1024x1024/base.png';
 import apollo11OverlayImagePath from './assets/preprocessed/apollo11/1024x1024/overlay.png';
@@ -42,6 +43,17 @@ renderer.setClearColor(0xffffff, 0);
 // Bring back the console.log
 console.log = _consoleLog;
 
+// Stats
+const stats = process.env.NODE_ENV == 'development' ? new Stats() : null;
+if (stats) {
+  stats.showPanel(0);
+  stats.dom.style.top = 'auto';
+  stats.dom.style.left = 'auto';
+  stats.dom.style.right = '0';
+  stats.dom.style.bottom = '0';
+  document.body.appendChild(stats.dom);
+}
+
 // Ray casting stuff
 const mousePosition = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
@@ -64,7 +76,7 @@ async function main() {
     apollo11Data.originalHeight
   );
 
-  const viewport = fitPlaneToScreen(camera.position.z - 2, camera.fov, width / height);
+  const viewport = fitPlaneToScreen(camera.position.z - 1, camera.fov, width / height);
   const aspectRatio = swapResult.originalWidth / swapResult.originalHeight;
 
   const cardScale = Math.min(
@@ -90,12 +102,15 @@ async function main() {
 let rAFId: number;
 let frameCount = 0;
 function animate(time: number) {
-  rAFId = requestAnimationFrame(animate);
+  stats && stats.begin();
   frameCount++;
 
   (TWEEN as any).default.update(time);
 
   renderer.render(scene, camera);
+
+  stats && stats.end();
+  rAFId = requestAnimationFrame(animate);
 }
 
 
