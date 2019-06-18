@@ -14,20 +14,6 @@
   src: url('./assets/fonts/bold.woff') format('woff');
 }
 
-@font-face {
-  font-family: 'MyFont';
-  font-style: italic;
-  font-weight: 400;
-  src: url('./assets/fonts/italic.woff') format('woff');
-}
-
-@font-face {
-  font-family: 'MyFont';
-  font-style: italic;
-  font-weight: 800;
-  src: url('./assets/fonts/bolditalic.woff') format('woff');
-}
-
 html, body {
   width: 100%;
   height: 100%;
