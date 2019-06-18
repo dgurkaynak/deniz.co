@@ -6,6 +6,7 @@ import * as TWEEN from '@tweenjs/tween.js';
 
 
 const PLANE_SEGMENT_COUNT = [ 50, 50 ];
+const NOISE_FACTOR = 0.5;
 
 
 export default class SceneImage {
@@ -135,17 +136,17 @@ export default class SceneImage {
 
     const tween = new TWEEN.Tween({
       opacity: 1,
-      noiseFactor: 0
+      noiseStrength: 0
     }).to({
       opacity: [ 0, 0 ],
-      noiseFactor: [ 1, 0 ]
+      noiseStrength: [ 1, 0 ]
     }, 500);
     this.faceTweens[faceIndex] = tween;
 
-    tween.onUpdate(({ opacity, noiseFactor }) => {
+    tween.onUpdate(({ opacity, noiseStrength }) => {
       this.overlayMaterials[faceIndex].opacity = opacity;
       faceVerticeIndexes.forEach((index) => {
-        this.geometry.vertices[index].z = Math.random() * 0.3 * noiseFactor;
+        this.geometry.vertices[index].z = Math.random() * NOISE_FACTOR * noiseStrength;
       });
       this.geometry.verticesNeedUpdate = true;
     });
@@ -162,17 +163,17 @@ export default class SceneImage {
 
     const tween = new TWEEN.Tween({
       opacity: 0,
-      noiseFactor: 0
+      noiseStrength: 0
     }).to({
       opacity: [ 1, 1 ],
-      noiseFactor: [ 1, 0 ]
+      noiseStrength: [ 1, 0 ]
     }, 500);
     this.faceTweens[faceIndex] = tween;
 
-    tween.onUpdate(({ opacity, noiseFactor }) => {
+    tween.onUpdate(({ opacity, noiseStrength }) => {
       this.overlayMaterials[faceIndex].opacity = opacity;
       faceVerticeIndexes.forEach((index) => {
-        this.geometry.vertices[index].z = -Math.random() * 0.3 * noiseFactor;
+        this.geometry.vertices[index].z = -Math.random() * NOISE_FACTOR * noiseStrength;
       });
       this.geometry.verticesNeedUpdate = true;
     });

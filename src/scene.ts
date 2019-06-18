@@ -11,8 +11,6 @@ import FaceLandmarks from './face-landmarks';
 import SceneImage from './scene-image';
 
 
-// Constants
-const PLANE_SEGMENT_COUNT = [ 40, 30 ];
 
 // Set-up the canvas
 const canvasContainer = document.getElementById('canvas-container');
@@ -65,7 +63,7 @@ async function main() {
     apollo11Data.originalHeight
   );
 
-  const viewport = fitPlaneToScreen(camera.position.z - 1, camera.fov, width / height);
+  const viewport = fitPlaneToScreen(camera.position.z - 2, camera.fov, width / height);
   const aspectRatio = swapResult.originalWidth / swapResult.originalHeight;
 
   const cardScale = Math.min(
