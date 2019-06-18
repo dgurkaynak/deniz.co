@@ -144,3 +144,18 @@ export function resizePoints(points: [ number, number ][], scale: number): [ num
     ];
   });
 }
+
+
+export function isWebGLSupported() {
+  try {
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (gl && gl instanceof WebGLRenderingContext) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (err) {
+    return false;
+  }
+}

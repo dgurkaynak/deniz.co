@@ -1,4 +1,5 @@
 import './style.css';
+import { isWebGLSupported } from './utils';
 
 
 // Add javascript-enabled class
@@ -26,9 +27,13 @@ aboutButtonElement.addEventListener('click', () => {
 
 
 async function main() {
-  // TODO: Maybe check webgl support and fallback?
-  // TODO: Minimal loading effect maybe?
-  await import(/* webpackChunkName: "scene" */ './scene');
+  // If webgl is not supported, open about text
+  if (!isWebGLSupported) {
+    mainElement.classList.add('opened');
+  } else {
+    // TODO: Minimal loading effect maybe?
+    await import(/* webpackChunkName: "scene" */ './scene');
+  }
 }
 
 
