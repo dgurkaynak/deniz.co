@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import debounce from 'lodash/debounce';
+import throttle from 'lodash/throttle';
 import * as TWEEN from '@tweenjs/tween.js';
 import Stats from 'stats.js';
 
@@ -117,20 +117,20 @@ function animate(time: number) {
 /**
  * Listen mouse move event
  */
-const onMouseMove = debounce((e: MouseEvent) => {
+const onMouseMove = throttle((e: MouseEvent) => {
   onMouseOrTouchMove(e.clientX, e.clientY);
-}, 5);
+}, 20);
 document.body.addEventListener('mousemove', onMouseMove, false);
 
 
 /**
  * Listen touch move event
  */
-const onTouchMove = debounce((e: TouchEvent) => {
+const onTouchMove = throttle((e: TouchEvent) => {
   const touch = e.changedTouches.length > 0 ? e.changedTouches[0] : e.touches[0];
   if (!touch) return;
   onMouseOrTouchMove(touch.clientX, touch.clientY);
-}, 5);
+}, 20);
 document.body.addEventListener('touchmove', onTouchMove, false);
 
 
@@ -165,7 +165,7 @@ function onMouseOrTouchMove(x: number, y: number) {
 /**
  * Listen window resize
  */
-const onWindowResize = debounce(() => {
+const onWindowResize = throttle(() => {
   const { offsetWidth: width, offsetHeight: height } = canvasContainer;
   canvas.width = width;
   canvas.height = height;
