@@ -97,6 +97,7 @@ main.opened {
 
 #about-text {
   margin: 0.8em;
+  max-width: 25em;
 }
 
 /* nav {
