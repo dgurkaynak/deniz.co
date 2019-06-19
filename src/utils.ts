@@ -159,3 +159,8 @@ export function isWebGLSupported() {
     return false;
   }
 }
+
+
+export async function sleep(duration: number) {
+  return new Promise(resolve => setTimeout(resolve, duration));
+}

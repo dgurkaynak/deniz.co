@@ -4,7 +4,7 @@ import * as TWEEN from '@tweenjs/tween.js';
 import Stats from 'stats.js';
 import Animator from './animator';
 import FaceSwapResult from './face-swap-result';
-import { loadImage } from './utils';
+import { loadImage, sleep } from './utils';
 import FaceLandmarks from './face-landmarks';
 import SceneImage from './scene-image';
 import { getNext as getNextPreprocessedImageData } from './preprocessed-data';
@@ -296,5 +296,6 @@ function fitPlaneToScreen(distance: number, cameraFov: number, screenAspectRatio
  * Go go go
  */
 main()
+  .then(() => sleep(100)) // THREE.Texture does not have onLoad handler, so sometimes it may load with a little delay
   .then(() => animator.step())
   .catch((err) => console.error(err));
