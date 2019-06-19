@@ -90,7 +90,7 @@ export default class SceneImage {
 
     // Bounding boxes are already calculated in faceLandmark, but they're cartesian coordinates
     // Convert them to UV coordinate system and cache
-    const hitAreaIncreaseFactor = 0.5;
+    const hitAreaIncreaseFactor = 0.5; // Increase the bounding boxes
     this.faceBoundingBoxesUV = this.faceSwapResult.faces.map((faceLandmark) => {
       const bb = faceLandmark.boundingBox;
       const widthIncrease = bb.width * hitAreaIncreaseFactor;
@@ -118,18 +118,18 @@ export default class SceneImage {
       if (faceIndex == this.hoveredFaceIndex) {
         // no-op
       } else {
-        if (this.hoveredFaceIndex > -1) this.onFaceUnhover(this.hoveredFaceIndex);
-        this.onFaceHover(faceIndex);
+        if (this.hoveredFaceIndex > -1) this.swapBackDenizFace(this.hoveredFaceIndex);
+        this.revealOriginalFace(faceIndex);
         this.hoveredFaceIndex = faceIndex;
       }
     } else {
-      if (this.hoveredFaceIndex > -1) this.onFaceUnhover(this.hoveredFaceIndex);
+      if (this.hoveredFaceIndex > -1) this.swapBackDenizFace(this.hoveredFaceIndex);
       this.hoveredFaceIndex = -1;
     }
   }
 
 
-  private onFaceHover(faceIndex: number) {
+  revealOriginalFace(faceIndex: number) {
     const currentTween = this.faceTweens[faceIndex];
     if (currentTween) currentTween.stop();
 
@@ -157,7 +157,7 @@ export default class SceneImage {
   }
 
 
-  private onFaceUnhover(faceIndex: number) {
+  swapBackDenizFace(faceIndex: number) {
     const currentTween = this.faceTweens[faceIndex];
     if (currentTween) currentTween.stop();
 
