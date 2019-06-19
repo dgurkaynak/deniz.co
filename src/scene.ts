@@ -132,17 +132,6 @@ document.body.addEventListener('mousemove', onMouseMove, false);
 
 
 /**
- * Listen touch move event
- */
-const onTouchMove = throttle((e: TouchEvent) => {
-  const touch = e.changedTouches.length > 0 ? e.changedTouches[0] : e.touches[0];
-  if (!touch) return;
-  onMouseOrTouchMove(touch.pageX, touch.pageY);
-}, 20);
-document.body.addEventListener('touchmove', onTouchMove, false);
-
-
-/**
  * Core mousemove/touchmove handler
  */
 function onMouseOrTouchMove(x: number, y: number) {
