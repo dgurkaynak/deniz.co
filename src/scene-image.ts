@@ -23,7 +23,7 @@ export default class SceneImage {
   overlayMaterials: THREE.MeshBasicMaterial[];
   overlayMeshes: THREE.Mesh[];
 
-  allMeshes: THREE.Mesh[] = [];
+  group = new THREE.Group();
 
   faceVertices: number[][];
   faceBoundingBoxesUV: { x: number, y: number, width: number, height: number }[];
@@ -43,7 +43,7 @@ export default class SceneImage {
     this.baseTexture.needsUpdate = true;
     this.baseMaterial = new THREE.MeshBasicMaterial({ map: this.baseTexture, transparent: true });
     this.baseMesh = new THREE.Mesh(this.geometry, this.baseMaterial);
-    this.allMeshes.push(this.baseMesh);
+    this.group.add(this.baseMesh);
 
     // Overlay image (my faces - swap overlay)
     this.overlayTexture = new THREE.Texture(this.faceSwapResult.overlayImage);
@@ -75,7 +75,7 @@ export default class SceneImage {
       // Mesh
       const mesh = new THREE.Mesh(this.geometry, material);
       this.overlayMeshes.push(mesh);
-      this.allMeshes.push(mesh);
+      this.group.add(mesh);
     }
 
     // Face landmark coordinates to geometry vertice index
@@ -202,7 +202,7 @@ export default class SceneImage {
     this.overlayAlphaMaps = null;
 
     this.overlayMeshes = null;
-    this.allMeshes = [];
+    this.group = null;
 
     this.faceVertices = null;
     this.faceBoundingBoxesUV = null;

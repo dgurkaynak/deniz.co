@@ -88,12 +88,10 @@ async function main() {
 
   sceneImage = new SceneImage(swapResult);
   await sceneImage.init();
-  sceneImage.allMeshes.forEach((mesh) => {
-    scene.add(mesh);
 
-    mesh.scale.setX(cardScale);
-    mesh.scale.setY(cardScaleY);
-  });
+  sceneImage.group.scale.setX(cardScale);
+  sceneImage.group.scale.setY(cardScaleY);
+  scene.add(sceneImage.group);
 }
 
 
@@ -140,10 +138,8 @@ document.body.addEventListener('touchmove', onTouchMove, false);
 function onMouseOrTouchMove(x: number, y: number) {
   const rotationX = ((y / height) - 0.5) * (15 * Math.PI / 180);
   const rotationY = ((x / width) - 0.5) * (30 * Math.PI / 180);
-  sceneImage && sceneImage.allMeshes.forEach((m) => {
-    m.rotation.x = rotationX;
-    m.rotation.y = rotationY;
-  });
+  sceneImage.group.rotation.x = rotationX;
+  sceneImage.group.rotation.y = rotationY;
 
 
   // Update mouse position and raycaster
