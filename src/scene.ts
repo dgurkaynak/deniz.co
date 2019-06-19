@@ -128,20 +128,20 @@ document.body.addEventListener('touchmove', onTouchMove, false);
  * Core mousemove/touchmove handler
  */
 function onMouseOrTouchMove(x: number, y: number) {
-  const rotationX = ((y / height) - 0.5) * (15 * Math.PI / 180);
-  const rotationY = ((x / width) - 0.5) * (30 * Math.PI / 180);
-  sceneImage.group.rotation.x = rotationX;
-  sceneImage.group.rotation.y = rotationY;
-
+  if (!sceneImage) return;
 
   // Update mouse position and raycaster
   mousePosition.x = (x / width) * 2 - 1;
   mousePosition.y = -(y / height) * 2 + 1;
   raycaster.setFromCamera(mousePosition, camera);
 
+  // Tilt effect
+  const rotationX = ((y / height) - 0.5) * (15 * Math.PI / 180);
+  const rotationY = ((x / width) - 0.5) * (30 * Math.PI / 180);
+  sceneImage.group.rotation.x = rotationX;
+  sceneImage.group.rotation.y = rotationY;
+
   // Check mouse whether on a face or not
-  // TODO: Do this maybe more throttled way?
-  if (!sceneImage) return;
   const intersects = raycaster.intersectObject(sceneImage.baseMesh);
   if (intersects.length > 0) {
     sceneImage.onMouseMove(intersects[0].uv);
