@@ -59,6 +59,8 @@ const raycaster = new THREE.Raycaster();
 // Set-up scene
 const textureSize = Math.min(width, height) * window.devicePixelRatio; // TODO: Can also use Math.max
 let sceneImage: SceneImage;
+let shouldPreventClick = false;
+
 
 /**
  * Main function
@@ -102,6 +104,52 @@ async function prepareNextPreprocessImage() {
   await sceneImage.init();
 
   return sceneImage;
+}
+
+
+async function addImageAndAnimateIn(sceneImage: SceneImage) {
+  const viewport = fitPlaneToScreen(camera.position.z, camera.fov, width / height);
+  const cardScale = fitFaceSwapResultToScreen(sceneImage.faceSwapResult);
+  const animationDuration = 1000;
+
+  sceneImage.group.scale.setX(cardScale.x);
+  sceneImage.group.scale.setY(cardScale.y);
+  sceneImage.group.position.x = -viewport.width;
+
+  scene.add(sceneImage.group);
+
+  const tween = new TWEEN.Tween({ x: -viewport.width }).to({ x: 0 }, animationDuration);
+  tween.easing(TWEEN.Easing.Exponential.InOut);
+
+  return new Promise((resolve) => {
+    tween.onUpdate(({ x }) => { sceneImage.group.position.x = x; });
+    tween.onComplete(() => resolve());
+
+    tween.start();
+    Animator.getGlobal().start(animationDuration + 100); // Some times tween.onComplete does not fire.
+  });
+}
+
+
+async function animateOutImageAndDispose(sceneImage: SceneImage) {
+  const viewport = fitPlaneToScreen(camera.position.z, camera.fov, width / height);
+  const animationDuration = 1000;
+
+  // TODO: Initial degeri `sceneImage.group.position.x` yapabilirsin
+  const tween = new TWEEN.Tween({ x: 0 }).to({ x: viewport.width * 1 }, animationDuration);
+  tween.easing(TWEEN.Easing.Exponential.InOut);
+
+  return new Promise((resolve) => {
+    tween.onUpdate(({ x }) => { sceneImage.group.position.x = x; });
+    tween.onComplete(() => {
+      scene.remove(sceneImage.group);
+      sceneImage.dispose();
+      resolve();
+    });
+
+    tween.start();
+    Animator.getGlobal().start(animationDuration + 100); // Some times tween.onComplete does not fire.
+  });
 }
 
 
@@ -156,6 +204,25 @@ function onMouseOrTouchMove(x: number, y: number) {
 
   animator.step();
 }
+
+
+async function onCanvasClick() {
+  if (shouldPreventClick) return;
+  shouldPreventClick = true;
+
+  const oldsceneImage = sceneImage;
+  sceneImage = null;
+
+  const [ newSceneImage ] = await Promise.all([
+    prepareNextPreprocessImage(),
+    animateOutImageAndDispose(oldsceneImage)
+  ]);
+
+  await addImageAndAnimateIn(newSceneImage);
+  sceneImage = newSceneImage;
+  shouldPreventClick = false;
+}
+canvas.addEventListener('click', onCanvasClick, false);
 
 
 /**
