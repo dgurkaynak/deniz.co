@@ -77,20 +77,12 @@ async function main() {
     apollo11Data.originalHeight
   );
 
-  const viewport = fitPlaneToScreen(camera.position.z - 1, camera.fov, width / height);
-  const aspectRatio = swapResult.originalWidth / swapResult.originalHeight;
-
-  const cardScale = Math.min(
-    viewport.width,
-    viewport.height * aspectRatio
-  ); // actually width (because card size is 1x1)
-  const cardScaleY = cardScale / aspectRatio; // actually height (because card size is 1x1)
-
   sceneImage = new SceneImage(swapResult);
   await sceneImage.init();
 
-  sceneImage.group.scale.setX(cardScale);
-  sceneImage.group.scale.setY(cardScaleY);
+  const cardScale = fitFaceSwapResultToScreen(swapResult);
+  sceneImage.group.scale.setX(cardScale.x);
+  sceneImage.group.scale.setY(cardScale.y);
   scene.add(sceneImage.group);
 }
 
@@ -173,10 +165,13 @@ const onWindowResize = throttle(() => {
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
 
-  // animator.step();
+  if (sceneImage) {
+    const cardScale = fitFaceSwapResultToScreen(sceneImage.faceSwapResult);
+    sceneImage.group.scale.setX(cardScale.x);
+    sceneImage.group.scale.setY(cardScale.y);
+  }
 
-  console.log('resize');
-  // TODO: Resize cards
+  animator.step();
 }, 500);
 window.addEventListener('resize', onWindowResize, false);
 window.addEventListener('orientationchange', onWindowResize, false);
@@ -190,6 +185,22 @@ function dispose() {
   window.removeEventListener('resize', onWindowResize, false);
   window.removeEventListener('orientationchange', onWindowResize, false);
   // TODO
+}
+
+
+function fitFaceSwapResultToScreen(swapResult: FaceSwapResult) {
+  const viewport = fitPlaneToScreen(camera.position.z - 1, camera.fov, width / height);
+  const aspectRatio = swapResult.originalWidth / swapResult.originalHeight;
+
+  const cardScale = Math.min(
+    viewport.width,
+    viewport.height * aspectRatio
+  ); // actually width (because card size is 1x1)
+  const cardScaleY = cardScale / aspectRatio; // actually height (because card size is 1x1)
+  return {
+    x: cardScale,
+    y: cardScaleY
+  };
 }
 
 
