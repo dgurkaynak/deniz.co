@@ -3,14 +3,11 @@ import throttle from 'lodash/throttle';
 import * as TWEEN from '@tweenjs/tween.js';
 import Stats from 'stats.js';
 import Animator from './animator';
-
-import apollo11BaseImagePath from './assets/preprocessed/apollo11/1024x1024/base.png';
-import apollo11OverlayImagePath from './assets/preprocessed/apollo11/1024x1024/overlay.png';
-import apollo11Data from './assets/preprocessed/apollo11/1024x1024/data.json';
 import FaceSwapResult from './face-swap-result';
 import { loadImage } from './utils';
 import FaceLandmarks from './face-landmarks';
 import SceneImage from './scene-image';
+import { getNext as getNextPreprocessedImageData } from './preprocessed-data';
 
 
 
@@ -60,30 +57,51 @@ const mousePosition = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 
 // Set-up scene
+const textureSize = Math.min(width, height) * window.devicePixelRatio; // TODO: Can also use Math.max
 let sceneImage: SceneImage;
 
 /**
  * Main function
  */
 async function main() {
-  const faceLandmarksArr: FaceLandmarks[] = apollo11Data.faces.map((rawFaceData: any) => {
-    return new FaceLandmarks(rawFaceData.points);
-  });
-  const swapResult = new FaceSwapResult(
-    await loadImage(apollo11BaseImagePath),
-    await loadImage(apollo11OverlayImagePath),
-    faceLandmarksArr,
-    apollo11Data.originalWidth,
-    apollo11Data.originalHeight
-  );
+  sceneImage = await prepareNextPreprocessImage();
 
-  sceneImage = new SceneImage(swapResult);
-  await sceneImage.init();
-
-  const cardScale = fitFaceSwapResultToScreen(swapResult);
+  const cardScale = fitFaceSwapResultToScreen(sceneImage.faceSwapResult);
   sceneImage.group.scale.setX(cardScale.x);
   sceneImage.group.scale.setY(cardScale.y);
   scene.add(sceneImage.group);
+}
+
+
+async function prepareNextPreprocessImage() {
+  const imageData = await getNextPreprocessedImageData(textureSize);
+
+  // Build face landmarks
+  const faceLandmarksArr: FaceLandmarks[] = imageData.faceData.faces.map((rawFaceData: any) => {
+    return new FaceLandmarks(rawFaceData.points);
+  });
+
+  // Load images in parallel
+  const [
+    baseImage,
+    overlayImage
+  ] = await Promise.all([
+    loadImage(imageData.baseImagePath),
+    loadImage(imageData.overlayImagePath)
+  ]);
+
+  const swapResult = new FaceSwapResult(
+    baseImage,
+    overlayImage,
+    faceLandmarksArr,
+    imageData.faceData.originalWidth,
+    imageData.faceData.originalHeight
+  );
+
+  const sceneImage = new SceneImage(swapResult);
+  await sceneImage.init();
+
+  return sceneImage;
 }
 
 
