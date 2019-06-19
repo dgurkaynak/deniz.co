@@ -7,7 +7,7 @@ import { saveAs } from 'file-saver';
 import denizImagePath from './assets/deniz.jpg';
 
 
-const RESIZE_TO = [ 512, 1024, 1536, 2048 ];
+const RESIZE_TO = [ 512, 1024, 1536, 2048 ]; // Must be ordered
 const DECIMAL_DIGIT_COUNT = 1;
 const PRETTY_PRINT_JSON = false;
 
@@ -75,8 +75,23 @@ async function processImage(name: string, url: string) {
   const result = await faceSwapper.processImage(image);
   const zipImageFolder = zip.folder(name.split('.')[0]);
 
-  for (let i = 0; i < RESIZE_TO.length; i++) {
-    const size = RESIZE_TO[i];
+  // If original image size is, let's say 1280x1280,
+  // Export textures for 512, 1024 and 1536
+  const targetSizes = RESIZE_TO.filter((size, index) => {
+    if (image.width > size || image.height > size) {
+      return true;
+    }
+
+    const previousSize = RESIZE_TO[index - 1];
+    if (image.width > previousSize || image.height > previousSize) {
+      return true;
+    }
+
+    return false;
+  });
+
+  for (let i = 0; i < targetSizes.length; i++) {
+    const size = targetSizes[i];
     messageElement.textContent = `Processing ${name}... (${size}x${size})`;
 
     const zipImageSizeFolder = zipImageFolder.folder(`${size}x${size}`);
