@@ -6,47 +6,32 @@ const images = [
   {
     id: 'acdc',
     resolutions: [512, 1024, 1536],
-    headingText: ''
+    headingText: `He believes in simplicity, like AC/DC.`
   },
   {
     id: 'apollo11',
     resolutions: [512, 1024],
-    headingText: ''
-  },
-  {
-    id: 'bsg',
-    resolutions: [512, 1024, 1536],
-    headingText: ''
+    headingText: `He wanted to be an astronaut, but things didn't go well.`
   },
   {
     id: 'friends',
     resolutions: [512, 1024, 1536],
-    headingText: ''
-  },
-  {
-    id: 'gnr',
-    resolutions: [512, 1024, 1536],
-    headingText: ''
-  },
-  {
-    id: 'hitman',
-    resolutions: [512, 1024, 1536],
-    headingText: ''
+    headingText: 'He thinks that Monica > Rachel > Phoebe'
   },
   {
     id: 'matrix',
     resolutions: [512, 1024, 1536, 2048],
-    headingText: ''
+    headingText: `He has watched "The Matrix" 19 times.`
   },
   {
     id: 'seinfeld',
     resolutions: [512, 1024, 1536],
-    headingText: ''
+    headingText: 'He loves watching Seinfeld while eating.'
   },
   {
     id: 'shannon',
     resolutions: [512, 1024, 1536],
-    headingText: ''
+    headingText: 'His favorite genious.'
   }
 ];
 

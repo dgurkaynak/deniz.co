@@ -8,7 +8,12 @@ import { loadImage, sleep } from './utils';
 import FaceLandmarks from './face-landmarks';
 import SceneImage from './scene-image';
 import { getNext as getNextPreprocessedImageData } from './preprocessed-data';
+import * as HeadingText from './heading-text';
 
+
+// Consts
+const IMAGE_ANIMATE_IN_DURATION = 1000;
+const IMAGE_ANIMATE_OUT_DURATION = 1000;
 
 
 // Set-up the canvas
@@ -66,12 +71,12 @@ let shouldPreventClick = false;
  * Main function
  */
 async function main() {
-  sceneImage = await prepareNextPreprocessImage();
-
-  const cardScale = fitFaceSwapResultToScreen(sceneImage.faceSwapResult);
-  sceneImage.group.scale.setX(cardScale.x);
-  sceneImage.group.scale.setY(cardScale.y);
-  scene.add(sceneImage.group);
+  HeadingText.startThreeDotLoading();
+  const newScene = await prepareNextPreprocessImage();
+  HeadingText.stopThreeDotLoading();
+  HeadingText.baffleReveal(newScene.imageData.headingText, IMAGE_ANIMATE_IN_DURATION);
+  await addImageAndAnimateIn(newScene.sceneImage);
+  sceneImage = newScene.sceneImage;
 }
 
 
@@ -103,14 +108,16 @@ async function prepareNextPreprocessImage() {
   const sceneImage = new SceneImage(swapResult);
   await sceneImage.init();
 
-  return sceneImage;
+  return {
+    sceneImage,
+    imageData
+  };
 }
 
 
 async function addImageAndAnimateIn(sceneImage: SceneImage) {
   const viewport = fitPlaneToScreen(camera.position.z, camera.fov, width / height);
   const cardScale = fitFaceSwapResultToScreen(sceneImage.faceSwapResult);
-  const animationDuration = 1000;
 
   sceneImage.group.scale.setX(cardScale.x);
   sceneImage.group.scale.setY(cardScale.y);
@@ -118,7 +125,7 @@ async function addImageAndAnimateIn(sceneImage: SceneImage) {
 
   scene.add(sceneImage.group);
 
-  const tween = new TWEEN.Tween({ x: -viewport.width }).to({ x: 0 }, animationDuration);
+  const tween = new TWEEN.Tween({ x: -viewport.width }).to({ x: 0 }, IMAGE_ANIMATE_IN_DURATION);
   tween.easing(TWEEN.Easing.Exponential.InOut);
 
   return new Promise((resolve) => {
@@ -126,17 +133,16 @@ async function addImageAndAnimateIn(sceneImage: SceneImage) {
     tween.onComplete(() => resolve());
 
     tween.start();
-    Animator.getGlobal().start(animationDuration + 100); // Some times tween.onComplete does not fire.
+    Animator.getGlobal().start(IMAGE_ANIMATE_IN_DURATION + 100); // Some times tween.onComplete does not fire.
   });
 }
 
 
 async function animateOutImageAndDispose(sceneImage: SceneImage) {
   const viewport = fitPlaneToScreen(camera.position.z, camera.fov, width / height);
-  const animationDuration = 1000;
 
   // TODO: Initial degeri `sceneImage.group.position.x` yapabilirsin
-  const tween = new TWEEN.Tween({ x: 0 }).to({ x: viewport.width * 1 }, animationDuration);
+  const tween = new TWEEN.Tween({ x: 0 }).to({ x: viewport.width * 1 }, IMAGE_ANIMATE_OUT_DURATION);
   tween.easing(TWEEN.Easing.Exponential.InOut);
 
   return new Promise((resolve) => {
@@ -148,9 +154,28 @@ async function animateOutImageAndDispose(sceneImage: SceneImage) {
     });
 
     tween.start();
-    Animator.getGlobal().start(animationDuration + 100); // Some times tween.onComplete does not fire.
+    Animator.getGlobal().start(IMAGE_ANIMATE_OUT_DURATION + 100); // Some times tween.onComplete does not fire.
   });
 }
+
+
+/**
+ * Listen about button click
+ */
+const aboutButtonElement = document.getElementById('about-button');
+const mainElement = document.getElementById('main');
+aboutButtonElement.addEventListener('click', () => {
+  // We're going to check `opened` class is added or removed (in index.ts :/)
+  // So checking it in next tick
+  setTimeout(() => {
+    const isOpened = mainElement.classList.contains('opened');
+    if (isOpened) {
+      HeadingText.lock();
+    } else {
+      HeadingText.unlock();
+    }
+  }, 0);
+}, false);
 
 
 /**
@@ -213,13 +238,16 @@ async function onCanvasClick() {
   const oldsceneImage = sceneImage;
   sceneImage = null;
 
-  const [ newSceneImage ] = await Promise.all([
+  HeadingText.startBaffling();
+
+  const [ newScene ] = await Promise.all([
     prepareNextPreprocessImage(),
     animateOutImageAndDispose(oldsceneImage)
   ]);
 
-  await addImageAndAnimateIn(newSceneImage);
-  sceneImage = newSceneImage;
+  HeadingText.baffleReveal(newScene.imageData.headingText, IMAGE_ANIMATE_IN_DURATION);
+  await addImageAndAnimateIn(newScene.sceneImage);
+  sceneImage = newScene.sceneImage;
   shouldPreventClick = false;
 }
 canvas.addEventListener('click', onCanvasClick, false);
@@ -296,6 +324,5 @@ function fitPlaneToScreen(distance: number, cameraFov: number, screenAspectRatio
  * Go go go
  */
 main()
-  .then(() => sleep(100)) // THREE.Texture does not have onLoad handler, so sometimes it may load with a little delay
   .then(() => animator.step())
   .catch((err) => console.error(err));
