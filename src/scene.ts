@@ -57,7 +57,7 @@ const mousePosition = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 
 // Set-up scene
-const textureSize = Math.min(width, height) * window.devicePixelRatio; // TODO: Can also use Math.max
+const textureSize = Math.max(width, height) * window.devicePixelRatio;
 let sceneImage: SceneImage;
 let shouldPreventClick = false;
 
