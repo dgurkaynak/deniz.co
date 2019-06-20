@@ -9,6 +9,9 @@ import FaceLandmarks from './face-landmarks';
 import SceneImage from './scene-image';
 import { getNext as getNextPreprocessedImageData } from './preprocessed-data';
 import * as HeadingText from './heading-text';
+import GestureHandler from './gesture-handler';
+
+// TODO: Heading text goes multiple line in my iphone
 
 
 // Consts
@@ -62,6 +65,8 @@ const mousePosition = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 
 // Set-up scene
+const gestureHandler = new GestureHandler(canvas);
+GestureHandler.setSingleton(gestureHandler);
 const textureSize = Math.max(width, height) * window.devicePixelRatio;
 let sceneImage: SceneImage;
 let shouldPreventClick = false;
@@ -196,19 +201,19 @@ Animator.setGlobal(animator);
 
 
 /**
- * Listen mouse move event
+ * General mouse-move handler. Actually listen for `pointermove` event,
+ * because touch events also generates `mousemove` event.
  */
-const onMouseMove = throttle((e: MouseEvent) => {
-  onMouseOrTouchMove(e.clientX, e.clientY);
-}, 20);
-document.body.addEventListener('mousemove', onMouseMove, false);
-
-
-/**
- * Core mousemove/touchmove handler
- */
-function onMouseOrTouchMove(x: number, y: number) {
+const onMouseMove = throttle((e: PointerEvent) => {
   if (!sceneImage) return;
+
+  // Only allow mouse events (ignore touch events)
+  if (e.pointerType != 'mouse') {
+    return;
+  }
+
+  const x = e.clientX;
+  const y = e.clientY;
 
   // Update mouse position and raycaster
   mousePosition.x = (x / width) * 2 - 1;
@@ -228,10 +233,24 @@ function onMouseOrTouchMove(x: number, y: number) {
   }
 
   animator.step();
-}
+}, 20);
+document.body.addEventListener('pointermove', onMouseMove, false);
 
 
-async function onCanvasClick() {
+/**
+ * Canvas element mouse-click handler. Actually listen for `pointerdown` event
+ * instead of `click`, because touch devices also fires `click` event. We want to
+ * seperate that.
+ */
+async function onCanvasClick(e: PointerEvent) {
+  // Only allow mouse move events (ignore touch events)
+  if (e.pointerType != 'mouse') {
+    return;
+  }
+
+  // Only allow main (left) button
+  if (e.button != 0) return;
+
   if (shouldPreventClick) return;
   shouldPreventClick = true;
 
@@ -250,7 +269,28 @@ async function onCanvasClick() {
   sceneImage = newScene.sceneImage;
   shouldPreventClick = false;
 }
-canvas.addEventListener('click', onCanvasClick, false);
+canvas.addEventListener('pointerdown', onCanvasClick, false);
+
+
+/**
+ * Listen for tap event on canvas.
+ * TODO: Duplication alert
+ */
+gestureHandler.onTap = ({ x, y }) => {
+  if (!sceneImage) return;
+
+  // Update mouse position and raycaster
+  mousePosition.x = (x / width) * 2 - 1;
+  mousePosition.y = -(y / height) * 2 + 1;
+  raycaster.setFromCamera(mousePosition, camera);
+
+  // Check mouse whether on a face or not
+  const intersects = raycaster.intersectObject(sceneImage.baseMesh);
+  if (intersects.length > 0) {
+    sceneImage.onMouseMove(intersects[0].uv);
+    animator.step();
+  }
+};
 
 
 /**
