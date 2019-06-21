@@ -62,7 +62,7 @@ if (stats) {
 }
 
 // Ray casting stuff
-const mousePosition = new THREE.Vector2();
+const raycastingTargetScreenPosition = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 
 // Set-up scene
@@ -86,7 +86,7 @@ async function main() {
   const newScene = await prepareNextPreprocessImage();
   HeadingText.stopThreeDotLoading();
   HeadingText.baffleReveal(newScene.imageData.headingText, IMAGE_ANIMATE_IN_DURATION);
-  await addImageAndAnimateIn(newScene.sceneImage);
+  await addAndSlideInImage(newScene.sceneImage);
   sceneImage = newScene.sceneImage;
 
   imagePlaneViewport = fitPlaneToScreen(camera.position.z - IMAGE_DISTANCE_FROM_CAMERA, camera.fov, width / height);
@@ -97,6 +97,9 @@ async function main() {
 }
 
 
+/**
+ * Fetches data json and images, creates & returns prepared SceneImage.
+ */
 async function prepareNextPreprocessImage() {
   const imageData = await getNextPreprocessedImageData(textureSize);
 
@@ -132,7 +135,10 @@ async function prepareNextPreprocessImage() {
 }
 
 
-async function addImageAndAnimateIn(sceneImage: SceneImage) {
+/**
+ * Adds sceneImage to the scene and animates sliding from left.
+ */
+async function addAndSlideInImage(sceneImage: SceneImage) {
   const viewport = fitPlaneToScreen(camera.position.z, camera.fov, width / height);
   const cardScale = fitFaceSwapResultToScreen(sceneImage.faceSwapResult);
 
@@ -155,10 +161,12 @@ async function addImageAndAnimateIn(sceneImage: SceneImage) {
 }
 
 
-async function animateOutImageAndDispose(sceneImage: SceneImage) {
+/**
+ * Slides out the image, then remove it from scene and dispose it.
+ */
+async function slideOutAndDisposeImage(sceneImage: SceneImage) {
   const viewport = fitPlaneToScreen(camera.position.z, camera.fov, width / height);
 
-  // TODO: Initial degeri `sceneImage.group.position.x` yapabilirsin
   const tween = new TWEEN.Tween({ x: 0 }).to({ x: viewport.width * 1 }, IMAGE_ANIMATE_OUT_DURATION);
   tween.easing(TWEEN.Easing.Exponential.InOut);
 
@@ -176,7 +184,10 @@ async function animateOutImageAndDispose(sceneImage: SceneImage) {
 }
 
 
-async function notThrowedAnimateBackToCenter(sceneImage: SceneImage) {
+/**
+ * Grabbed image is not throwed, animate back into center.
+ */
+async function animateImageBackToCenter(sceneImage: SceneImage) {
   const tween = new TWEEN.Tween({
     posX: sceneImage.group.position.x,
     posY: sceneImage.group.position.y,
@@ -203,6 +214,10 @@ async function notThrowedAnimateBackToCenter(sceneImage: SceneImage) {
 }
 
 
+/**
+ * Image is throwed, animate out by throw direction.
+ * Then, remove it from scene and dispose.
+ */
 async function throwAnimateAndDispose(sceneImage: SceneImage, throwData: { velocity: number, angle: number }) {
   const viewport = fitPlaneToScreen(camera.position.z, camera.fov, width / height);
 
@@ -240,7 +255,7 @@ async function throwAnimateAndDispose(sceneImage: SceneImage, throwData: { veloc
 
 
 /**
- * Listen about button click
+ * Listen "about" button click
  */
 const aboutButtonElement = document.getElementById('about-button');
 const mainElement = document.getElementById('main');
@@ -261,15 +276,10 @@ aboutButtonElement.addEventListener('click', () => {
 /**
  * Animate
  */
-let frameCount = 0;
 const animator = new Animator((time) => {
   stats && stats.begin();
-  frameCount++;
-
   (TWEEN as any).default.update(time);
-
   renderer.render(scene, camera);
-
   stats && stats.end();
 });
 Animator.setGlobal(animator);
@@ -290,11 +300,6 @@ const onMouseMove = throttle((e: PointerEvent) => {
   const x = e.clientX;
   const y = e.clientY;
 
-  // Update mouse position and raycaster
-  mousePosition.x = (x / width) * 2 - 1;
-  mousePosition.y = -(y / height) * 2 + 1;
-  raycaster.setFromCamera(mousePosition, camera);
-
   // Tilt effect
   const rotationX = ((y / height) - 0.5) * (15 * Math.PI / 180);
   const rotationY = ((x / width) - 0.5) * (30 * Math.PI / 180);
@@ -302,6 +307,7 @@ const onMouseMove = throttle((e: PointerEvent) => {
   sceneImage.group.rotation.y = rotationY;
 
   // Check mouse whether on a face or not
+  updateRayCasting(x, y);
   const intersects = raycaster.intersectObject(sceneImage.baseMesh);
   if (intersects.length > 0) {
     sceneImage.onMouseMove(intersects[0].uv);
@@ -336,11 +342,11 @@ async function onCanvasClick(e: PointerEvent) {
 
   const [ newScene ] = await Promise.all([
     prepareNextPreprocessImage(),
-    animateOutImageAndDispose(oldsceneImage)
+    slideOutAndDisposeImage(oldsceneImage)
   ]);
 
   HeadingText.baffleReveal(newScene.imageData.headingText, IMAGE_ANIMATE_IN_DURATION);
-  await addImageAndAnimateIn(newScene.sceneImage);
+  await addAndSlideInImage(newScene.sceneImage);
   sceneImage = newScene.sceneImage;
   isNewImageLoading = false;
 }
@@ -349,17 +355,12 @@ canvas.addEventListener('pointerdown', onCanvasClick, false);
 
 /**
  * Listen for tap event on canvas.
- * TODO: Duplication alert
  */
 gestureHandler.onTap = ({ x, y }) => {
   if (!sceneImage) return;
 
-  // Update mouse position and raycaster
-  mousePosition.x = (x / width) * 2 - 1;
-  mousePosition.y = -(y / height) * 2 + 1;
-  raycaster.setFromCamera(mousePosition, camera);
-
   // Check whether tapped on a face or not
+  updateRayCasting(x, y);
   const intersects = raycaster.intersectObject(sceneImage.baseMesh);
   if (intersects.length > 0) {
     sceneImage.onMouseMove(intersects[0].uv);
@@ -370,17 +371,12 @@ gestureHandler.onTap = ({ x, y }) => {
 
 /**
  * Listen for touch start event to grab image
- * TODO: Duplication alert
  */
 gestureHandler.onTouchStart = (e) => {
   const changedTouch = e.changedTouches[0];
 
-  // Update mouse position and raycaster
-  mousePosition.x = (changedTouch.pageX / width) * 2 - 1;
-  mousePosition.y = -(changedTouch.pageY / height) * 2 + 1;
-  raycaster.setFromCamera(mousePosition, camera);
-
   // Check mouse whether on a face or not
+  updateRayCasting(changedTouch.pageX, changedTouch.pageY);
   const intersects = raycaster.intersectObject(sceneImage.baseMesh);
   if (intersects.length > 0) {
     isPanning = true;
@@ -395,9 +391,7 @@ gestureHandler.onTouchStart = (e) => {
  * Listen for touch move events to grab image
  */
 gestureHandler.onPan = (e, delta) => {
-  if (!isPanning) {
-    return;
-  }
+  if (!isPanning) return;
 
   // Position
   sceneImage.group.position.x += delta.x * pixelToThreeUnitFactor.x;
@@ -419,7 +413,6 @@ gestureHandler.onTouchEnd = async (e, throwData) => {
   if (!sceneImage) return;
 
   if (throwData) {
-    // TODO: Duplication alert (onCanvasClick)
     isNewImageLoading = true;
 
     const oldsceneImage = sceneImage;
@@ -433,11 +426,11 @@ gestureHandler.onTouchEnd = async (e, throwData) => {
     ]);
 
     HeadingText.baffleReveal(newScene.imageData.headingText, IMAGE_ANIMATE_IN_DURATION);
-    await addImageAndAnimateIn(newScene.sceneImage);
+    await addAndSlideInImage(newScene.sceneImage);
     sceneImage = newScene.sceneImage;
     isNewImageLoading = false;
   } else {
-    notThrowedAnimateBackToCenter(sceneImage);
+    animateImageBackToCenter(sceneImage);
   }
 };
 
@@ -482,6 +475,13 @@ function dispose() {
   window.removeEventListener('resize', onWindowResize, false);
   window.removeEventListener('orientationchange', onWindowResize, false);
   // TODO
+}
+
+
+function updateRayCasting(x: number, y: number) {
+  raycastingTargetScreenPosition.x = (x / width) * 2 - 1;
+  raycastingTargetScreenPosition.y = -(y / height) * 2 + 1;
+  raycaster.setFromCamera(raycastingTargetScreenPosition, camera);
 }
 
 
