@@ -11,7 +11,6 @@ import { getNext as getNextPreprocessedImageData } from './preprocessed-data';
 import * as HeadingText from './heading-text';
 import GestureHandler from './gesture-handler';
 
-// TODO: Heading text goes multiple line in my iphone
 
 
 // Consts

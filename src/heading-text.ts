@@ -8,6 +8,10 @@ const b = baffle(headingTextEl);
 let isLocked = false;
 let nonLockedText = '';
 
+const mainElement = document.getElementById('main');
+const lineHeight = 21;
+const correctMaxLineHeightInterval = setInterval(correctMaxLineHeight, 1000);
+
 
 /**
  * Main methods
@@ -39,6 +43,12 @@ export function unlock() {
 export function stopAllAnimations() {
   stopThreeDotLoading();
   stopBaffling();
+}
+
+
+export function correctMaxLineHeight() {
+  const lineCount = Math.floor(headingTextEl.offsetHeight / lineHeight);
+  mainElement.setAttribute('data-line-count', `${lineCount}`);
 }
 
 
