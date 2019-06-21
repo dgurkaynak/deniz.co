@@ -13,7 +13,7 @@ const NOISE_FACTOR = 0.5;
 export default class SceneImage {
   faceSwapResult: FaceSwapResult;
 
-  geometry = new THREE.PlaneGeometry(1, 1, PLANE_SEGMENT_COUNT[0], PLANE_SEGMENT_COUNT[1]);
+  geometry = new THREE.PlaneGeometry(1, 1, PLANE_SEGMENT_COUNT[0], PLANE_SEGMENT_COUNT[1]); // TODO: Cache it
   baseTexture: THREE.Texture;
   baseMaterial: THREE.MeshBasicMaterial;
   baseMesh: THREE.Mesh;

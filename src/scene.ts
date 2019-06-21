@@ -17,6 +17,8 @@ import GestureHandler from './gesture-handler';
 // Consts
 const IMAGE_ANIMATE_IN_DURATION = 1000;
 const IMAGE_ANIMATE_OUT_DURATION = 1000;
+const IMAGE_ANIMATE_BACK_TO_CENTER_DURATION = 100;
+const IMAGE_DISTANCE_FROM_CAMERA = 1;
 
 
 // Set-up the canvas
@@ -68,8 +70,13 @@ const raycaster = new THREE.Raycaster();
 const gestureHandler = new GestureHandler(canvas);
 GestureHandler.setSingleton(gestureHandler);
 const textureSize = Math.max(width, height) * window.devicePixelRatio;
+let pixelToThreeUnitFactor: { x: number, y: number }; // will be updated on resize
+let imagePlaneViewport: { width: number, height: number }; // will be updated on resize
+
 let sceneImage: SceneImage;
-let shouldPreventClick = false;
+let isNewImageLoading = false;
+let isPanning = false;
+let imageTweenBackToCenter: TWEEN.Tween;
 
 
 /**
@@ -82,6 +89,12 @@ async function main() {
   HeadingText.baffleReveal(newScene.imageData.headingText, IMAGE_ANIMATE_IN_DURATION);
   await addImageAndAnimateIn(newScene.sceneImage);
   sceneImage = newScene.sceneImage;
+
+  imagePlaneViewport = fitPlaneToScreen(camera.position.z - IMAGE_DISTANCE_FROM_CAMERA, camera.fov, width / height);
+  pixelToThreeUnitFactor = {
+    x: imagePlaneViewport.width / width,
+    y: imagePlaneViewport.height / height
+  };
 }
 
 
@@ -160,6 +173,69 @@ async function animateOutImageAndDispose(sceneImage: SceneImage) {
 
     tween.start();
     Animator.getGlobal().start(IMAGE_ANIMATE_OUT_DURATION + 100); // Some times tween.onComplete does not fire.
+  });
+}
+
+
+async function notThrowedAnimateBackToCenter(sceneImage: SceneImage) {
+  const tween = new TWEEN.Tween({
+    posX: sceneImage.group.position.x,
+    posY: sceneImage.group.position.y,
+    rotY: sceneImage.group.rotation.y,
+    rotZ: sceneImage.group.rotation.z
+  }).to({ posX: 0, posY: 0, rotY: 0, rotZ: 0 }, IMAGE_ANIMATE_BACK_TO_CENTER_DURATION);
+  imageTweenBackToCenter = tween;
+
+  return new Promise((resolve) => {
+    tween.onUpdate(({ posX, posY, rotY, rotZ }) => {
+      sceneImage.group.position.x = posX;
+      sceneImage.group.position.y = posY;
+      sceneImage.group.rotation.y = rotY;
+      sceneImage.group.rotation.z = rotZ;
+    });
+    tween.onComplete(() => {
+      imageTweenBackToCenter = null;
+      resolve();
+    });
+
+    tween.start();
+    Animator.getGlobal().start(IMAGE_ANIMATE_BACK_TO_CENTER_DURATION + 100); // Some times tween.onComplete does not fire.
+  });
+}
+
+
+async function throwAnimateAndDispose(sceneImage: SceneImage, throwData: { velocity: number, angle: number }) {
+  const viewport = fitPlaneToScreen(camera.position.z, camera.fov, width / height);
+
+  const sign = sceneImage.group.position.x >= 0 ? 1 : -1;
+  const offsetX = sign * viewport.width;
+  const targetX = sceneImage.group.position.x + offsetX;
+  const offsetY = offsetX * Math.tan(throwData.angle);
+  const targetY = sceneImage.group.position.y + offsetY;
+  const totalOffset = Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2));
+  const pixelToThreeUnitTotal = Math.sqrt(Math.pow(pixelToThreeUnitFactor.x, 2) + Math.pow(pixelToThreeUnitFactor.y, 2));
+  const duration = Math.round(totalOffset / (throwData.velocity * pixelToThreeUnitTotal));
+
+  const tween = new TWEEN.Tween({
+    x: sceneImage.group.position.x,
+    y: sceneImage.group.position.y
+  }).to({ x: targetX, y: targetY }, duration);
+
+  return new Promise((resolve) => {
+    tween.onUpdate(({ x, y }) => {
+      sceneImage.group.position.x = x;
+      sceneImage.group.position.y = y;
+      sceneImage.group.rotation.y = (x / imagePlaneViewport.width) * Math.PI / 2;
+      sceneImage.group.rotation.z = (y / imagePlaneViewport.height) * Math.PI / 2;
+    });
+    tween.onComplete(() => {
+      scene.remove(sceneImage.group);
+      sceneImage.dispose();
+      resolve();
+    });
+
+    tween.start();
+    Animator.getGlobal().start(duration + 100); // Some times tween.onComplete does not fire.
   });
 }
 
@@ -251,8 +327,8 @@ async function onCanvasClick(e: PointerEvent) {
   // Only allow main (left) button
   if (e.button != 0) return;
 
-  if (shouldPreventClick) return;
-  shouldPreventClick = true;
+  if (isNewImageLoading) return;
+  isNewImageLoading = true;
 
   const oldsceneImage = sceneImage;
   sceneImage = null;
@@ -267,7 +343,7 @@ async function onCanvasClick(e: PointerEvent) {
   HeadingText.baffleReveal(newScene.imageData.headingText, IMAGE_ANIMATE_IN_DURATION);
   await addImageAndAnimateIn(newScene.sceneImage);
   sceneImage = newScene.sceneImage;
-  shouldPreventClick = false;
+  isNewImageLoading = false;
 }
 canvas.addEventListener('pointerdown', onCanvasClick, false);
 
@@ -284,11 +360,85 @@ gestureHandler.onTap = ({ x, y }) => {
   mousePosition.y = -(y / height) * 2 + 1;
   raycaster.setFromCamera(mousePosition, camera);
 
-  // Check mouse whether on a face or not
+  // Check whether tapped on a face or not
   const intersects = raycaster.intersectObject(sceneImage.baseMesh);
   if (intersects.length > 0) {
     sceneImage.onMouseMove(intersects[0].uv);
     animator.step();
+  }
+};
+
+
+/**
+ * Listen for touch start event to grab image
+ * TODO: Duplication alert
+ */
+gestureHandler.onTouchStart = (e) => {
+  const changedTouch = e.changedTouches[0];
+
+  // Update mouse position and raycaster
+  mousePosition.x = (changedTouch.pageX / width) * 2 - 1;
+  mousePosition.y = -(changedTouch.pageY / height) * 2 + 1;
+  raycaster.setFromCamera(mousePosition, camera);
+
+  // Check mouse whether on a face or not
+  const intersects = raycaster.intersectObject(sceneImage.baseMesh);
+  if (intersects.length > 0) {
+    isPanning = true;
+
+    // If there is ongoing tween back to center, stop it
+    imageTweenBackToCenter && imageTweenBackToCenter.stop();
+  }
+};
+
+
+/**
+ * Listen for touch move events to grab image
+ */
+gestureHandler.onPan = (e, delta) => {
+  if (!isPanning) {
+    return;
+  }
+
+  // Position
+  sceneImage.group.position.x += delta.x * pixelToThreeUnitFactor.x;
+  sceneImage.group.position.y -= delta.y * pixelToThreeUnitFactor.y; // three.js, y is inverted
+
+  // Rotation
+  sceneImage.group.rotation.y = (sceneImage.group.position.x / imagePlaneViewport.width) * Math.PI / 2;
+  sceneImage.group.rotation.z = (sceneImage.group.position.y / imagePlaneViewport.height) * Math.PI / 2;
+
+  animator.step();
+};
+
+
+/**
+ * Listen for touch end event
+ */
+gestureHandler.onTouchEnd = async (e, throwData) => {
+  isPanning = false;
+  if (!sceneImage) return;
+
+  if (throwData) {
+    // TODO: Duplication alert (onCanvasClick)
+    isNewImageLoading = true;
+
+    const oldsceneImage = sceneImage;
+    sceneImage = null;
+
+    HeadingText.startBaffling();
+
+    const [ newScene ] = await Promise.all([
+      prepareNextPreprocessImage(),
+      throwAnimateAndDispose(oldsceneImage, throwData)
+    ]);
+
+    HeadingText.baffleReveal(newScene.imageData.headingText, IMAGE_ANIMATE_IN_DURATION);
+    await addImageAndAnimateIn(newScene.sceneImage);
+    sceneImage = newScene.sceneImage;
+    isNewImageLoading = false;
+  } else {
+    notThrowedAnimateBackToCenter(sceneImage);
   }
 };
 
@@ -306,6 +456,12 @@ const onWindowResize = throttle(() => {
 
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
+
+  imagePlaneViewport = fitPlaneToScreen(camera.position.z - IMAGE_DISTANCE_FROM_CAMERA, camera.fov, width / height);
+  pixelToThreeUnitFactor = {
+    x: imagePlaneViewport.width / width,
+    y: imagePlaneViewport.height / height
+  };
 
   if (sceneImage) {
     const cardScale = fitFaceSwapResultToScreen(sceneImage.faceSwapResult);
@@ -331,12 +487,12 @@ function dispose() {
 
 
 function fitFaceSwapResultToScreen(swapResult: FaceSwapResult) {
-  const viewport = fitPlaneToScreen(camera.position.z - 1, camera.fov, width / height);
+  const imagePlaneViewport = fitPlaneToScreen(camera.position.z - IMAGE_DISTANCE_FROM_CAMERA, camera.fov, width / height);
   const aspectRatio = swapResult.originalWidth / swapResult.originalHeight;
 
   const cardScale = Math.min(
-    viewport.width,
-    viewport.height * aspectRatio
+    imagePlaneViewport.width,
+    imagePlaneViewport.height * aspectRatio
   ); // actually width (because card size is 1x1)
   const cardScaleY = cardScale / aspectRatio; // actually height (because card size is 1x1)
   return {
