@@ -103,6 +103,7 @@ export function startThreeDotLoading() {
   threeDotUpdateCount = 0
   nonLockedText = defaultText;
   headingTextEl.textContent = nonLockedText;
+  clearTimeout(threeDotUpdateInterval);
   threeDotUpdateInterval = setTimeout(onThreeDotLoadingTick, threeDotUpdateIntervalDuration);
 }
 

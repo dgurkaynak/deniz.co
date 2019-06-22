@@ -1,6 +1,7 @@
 import './style.css';
 import { isWebGLSupported } from './utils';
 import { disableBodyScroll } from 'body-scroll-lock';
+import * as HeadingText from './heading-text';
 
 
 // Disable body scroll
@@ -35,7 +36,7 @@ async function main() {
   if (!isWebGLSupported) {
     mainElement.classList.add('opened');
   } else {
-    // TODO: Minimal loading effect maybe?
+    HeadingText.startThreeDotLoading();
     await import(/* webpackChunkName: "scene" */ './scene');
   }
 }
