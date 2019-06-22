@@ -36,6 +36,7 @@ camera.position.z = 10;
 // Kehehe https://github.com/mrdoob/three.js/pull/5835
 const _consoleLog = console.log;
 console.log = () => {};
+console.warn = () => {}; // Disables three.js's texture size warning
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({
