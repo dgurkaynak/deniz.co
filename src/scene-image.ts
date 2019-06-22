@@ -13,7 +13,7 @@ const NOISE_FACTOR = 0.5;
 export default class SceneImage {
   faceSwapResult: FaceSwapResult;
 
-  geometry = new THREE.PlaneGeometry(1, 1, PLANE_SEGMENT_COUNT[0], PLANE_SEGMENT_COUNT[1]); // TODO: Cache it
+  geometry = new THREE.PlaneGeometry(1, 1, PLANE_SEGMENT_COUNT[0], PLANE_SEGMENT_COUNT[1]); // TODO: Maybe re-use it?
   baseTexture: THREE.Texture;
   baseMaterial: THREE.MeshBasicMaterial;
   baseMesh: THREE.Mesh;
@@ -56,12 +56,12 @@ export default class SceneImage {
 
     for (let faceLandmarks of this.faceSwapResult.faces) {
       // Alpha map
-      // TODO: THREE.CanvasTexture always updates the canvas, that's why convert canvas to image
       prepareAlphaMask({
         canvas: { width: this.faceSwapResult.width, height: this.faceSwapResult.height },
         opaqueBoundingBox: faceLandmarks.boundingBox,
         scale: 0.25
       });
+      // THREE.CanvasTexture always updates the canvas, that's why convert canvas to image
       const alphaMapImage = new Image();
       alphaMapImage.src = await canvasToURL(alphaMaskCanvas);
       const alphaMapTexture = new THREE.Texture(alphaMapImage);
@@ -208,6 +208,7 @@ export default class SceneImage {
     this.faceBoundingBoxesUV = null;
 
     Object.values(this.faceTweens).forEach(tween => tween.stop());
+    this.faceTweens = {};
   }
 }
 

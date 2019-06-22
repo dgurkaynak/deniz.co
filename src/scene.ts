@@ -467,17 +467,6 @@ window.addEventListener('resize', onWindowResize, false);
 window.addEventListener('orientationchange', onWindowResize, false);
 
 
-/**
- * Keep the environment clean & beatiful
- */
-function dispose() {
-  animator.stop();
-  window.removeEventListener('resize', onWindowResize, false);
-  window.removeEventListener('orientationchange', onWindowResize, false);
-  // TODO
-}
-
-
 function updateRayCasting(x: number, y: number) {
   raycastingTargetScreenPosition.x = (x / width) * 2 - 1;
   raycastingTargetScreenPosition.y = -(y / height) * 2 + 1;
