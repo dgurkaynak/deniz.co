@@ -84,6 +84,7 @@ let imageTweenBackToCenter: TWEEN.Tween;
 async function main() {
   // Three dot loading animation is started in index, so not start again
   const newScene = await prepareNextPreprocessImage();
+  mainElement.classList.remove('opened');
   HeadingText.stopThreeDotLoading();
   HeadingText.baffleReveal(newScene.imageData.headingText, IMAGE_ANIMATE_IN_DURATION);
   await addAndSlideInImage(newScene.sceneImage);
