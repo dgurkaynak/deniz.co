@@ -39,6 +39,12 @@ async function main() {
     HeadingText.startThreeDotLoading();
     await import(/* webpackChunkName: "scene" */ './scene');
   }
+
+  // Print github repo to console
+  console.log(
+    '%cHey there, if you\'re interested: source code of this website avaliable on https://github.com/dgurkaynak/deniz.co',
+    'font-size: 16px; color: blue;'
+  );
 }
 
 
