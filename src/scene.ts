@@ -10,6 +10,8 @@ import SceneImage from './scene-image';
 import { getNext as getNextPreprocessedImageData } from './preprocessed-data';
 import * as HeadingText from './heading-text';
 import GestureHandler from './gesture-handler';
+import { disableBodyScroll } from 'body-scroll-lock';
+
 
 
 
@@ -20,6 +22,9 @@ const IMAGE_ANIMATE_BACK_TO_CENTER_DURATION = 100;
 const IMAGE_DISTANCE_FROM_CAMERA = 1;
 const ANIMATOR_EXTRA_DURATION = 500; // Some times tween.onComplete does not fire.
 
+
+// Disable body scroll
+disableBodyScroll(document.body);
 
 // Set-up the canvas
 const canvasContainer = document.getElementById('canvas-container');
@@ -84,6 +89,12 @@ let imageTweenBackToCenter: TWEEN.Tween;
  * Main function
  */
 async function main() {
+  // Print github repo to console
+  console.log(
+    '%cHey there, if you\'re interested: source code of this website avaliable on https://github.com/dgurkaynak/deniz.co',
+    'font-size: 16px; color: blue;'
+  );
+
   // Three dot loading animation is started in index, so not start again
   const newScene = await prepareNextPreprocessImage();
   mainElement.classList.remove('opened');

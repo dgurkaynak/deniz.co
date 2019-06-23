@@ -1,11 +1,7 @@
 import './style.css';
-import { isWebGLSupported } from './utils';
-import { disableBodyScroll } from 'body-scroll-lock';
 import * as HeadingText from './heading-text';
 
 
-// Disable body scroll
-disableBodyScroll(document.body);
 
 // Add javascript-enabled class
 document.body.classList.add('javascript-enabled');
@@ -39,12 +35,21 @@ async function main() {
     HeadingText.startThreeDotLoading();
     await import(/* webpackChunkName: "scene" */ './scene');
   }
+}
 
-  // Print github repo to console
-  console.log(
-    '%cHey there, if you\'re interested: source code of this website avaliable on https://github.com/dgurkaynak/deniz.co',
-    'font-size: 16px; color: blue;'
-  );
+
+function isWebGLSupported() {
+  try {
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (gl && gl instanceof WebGLRenderingContext) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (err) {
+    return false;
+  }
 }
 
 
