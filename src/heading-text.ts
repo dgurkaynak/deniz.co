@@ -1,10 +1,9 @@
-import baffle from 'baffle';
 import times from 'lodash/times';
 
 
 const defaultText = 'Deniz Gürkaynak';
 const headingTextEl = document.getElementById('heading-text');
-const b = baffle(headingTextEl);
+let b: any;
 let isLocked = false;
 let nonLockedText = '';
 
@@ -23,8 +22,8 @@ export function lock() {
 
   isLocked = true;
   stopAllAnimations();
-  b.text(() => defaultText);
-  b.reveal(500);
+  b && b.text(() => defaultText);
+  b && b.reveal(500);
 }
 
 
@@ -34,8 +33,8 @@ export function unlock() {
   }
 
   stopAllAnimations();
-  b.text(() => nonLockedText);
-  b.reveal(500);
+  b && b.text(() => nonLockedText);
+  b && b.reveal(500);
   isLocked = false;
 }
 
@@ -55,7 +54,16 @@ export function correctMaxLineHeight() {
 /**
  * Baffle stuff
  */
-export function startBaffling(text?: string) {
+async function prepareBaffleIfNecessary() {
+  if (!b) {
+    const { default: baffle } = await import(/* webpackChunkName: "baffle" */ 'baffle');
+    b = baffle(headingTextEl);
+  }
+}
+
+export async function startBaffling(text?: string) {
+  await prepareBaffleIfNecessary();
+
   if (isLocked) {
     if (text) nonLockedText = text;
     return;
@@ -69,12 +77,15 @@ export function startBaffling(text?: string) {
 }
 
 
-export function stopBaffling() {
+export async function stopBaffling() {
+  await prepareBaffleIfNecessary();
   b.stop();
 }
 
 
-export function baffleReveal(text: string, duration: number) {
+export async function baffleReveal(text: string, duration: number) {
+  await prepareBaffleIfNecessary();
+
   if (isLocked) {
     if (text) nonLockedText = text;
     return;
