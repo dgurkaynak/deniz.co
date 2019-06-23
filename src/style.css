@@ -123,3 +123,7 @@ li:first-child {
 li:last-child {
   margin-right: 0;
 }
+
+.cursor-pointer {
+  cursor: pointer;
+}

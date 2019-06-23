@@ -325,6 +325,9 @@ const onMouseMove = throttle((e: PointerEvent) => {
   const intersects = raycaster.intersectObject(sceneImage.baseMesh);
   if (intersects.length > 0) {
     sceneImage.onMouseMove(intersects[0].uv);
+    canvas.classList.add('cursor-pointer');
+  } else {
+    canvas.classList.remove('cursor-pointer');
   }
 
   animator.step();
@@ -358,6 +361,11 @@ async function onCanvasClick(e: PointerEvent) {
 
   // Only allow main (left) button
   if (e.button != 0) return;
+
+  // If not clicked on image, do not change
+  updateRayCasting(e.clientX, e.clientY);
+  const intersects = raycaster.intersectObject(sceneImage.baseMesh);
+  if (intersects.length == 0) return;
 
   if (isNewImageLoading) return;
   isNewImageLoading = true;
