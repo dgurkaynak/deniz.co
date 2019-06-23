@@ -18,6 +18,7 @@ const IMAGE_ANIMATE_IN_DURATION = 1000;
 const IMAGE_ANIMATE_OUT_DURATION = 1000;
 const IMAGE_ANIMATE_BACK_TO_CENTER_DURATION = 100;
 const IMAGE_DISTANCE_FROM_CAMERA = 1;
+const ANIMATOR_EXTRA_DURATION = 500; // Some times tween.onComplete does not fire.
 
 
 // Set-up the canvas
@@ -158,7 +159,7 @@ async function addAndSlideInImage(sceneImage: SceneImage) {
     tween.onComplete(() => resolve());
 
     tween.start();
-    Animator.getGlobal().start(IMAGE_ANIMATE_IN_DURATION + 100); // Some times tween.onComplete does not fire.
+    Animator.getGlobal().start(IMAGE_ANIMATE_IN_DURATION + ANIMATOR_EXTRA_DURATION);
   });
 }
 
@@ -181,7 +182,7 @@ async function slideOutAndDisposeImage(sceneImage: SceneImage) {
     });
 
     tween.start();
-    Animator.getGlobal().start(IMAGE_ANIMATE_OUT_DURATION + 100); // Some times tween.onComplete does not fire.
+    Animator.getGlobal().start(IMAGE_ANIMATE_OUT_DURATION + ANIMATOR_EXTRA_DURATION);
   });
 }
 
@@ -211,7 +212,7 @@ async function animateImageBackToCenter(sceneImage: SceneImage) {
     });
 
     tween.start();
-    Animator.getGlobal().start(IMAGE_ANIMATE_BACK_TO_CENTER_DURATION + 100); // Some times tween.onComplete does not fire.
+    Animator.getGlobal().start(IMAGE_ANIMATE_BACK_TO_CENTER_DURATION + ANIMATOR_EXTRA_DURATION);
   });
 }
 
@@ -251,7 +252,7 @@ async function throwAnimateAndDispose(sceneImage: SceneImage, throwData: { veloc
     });
 
     tween.start();
-    Animator.getGlobal().start(duration + 100); // Some times tween.onComplete does not fire.
+    Animator.getGlobal().start(duration + ANIMATOR_EXTRA_DURATION);
   });
 }
 
