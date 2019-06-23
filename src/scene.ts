@@ -329,7 +329,20 @@ const onMouseMove = throttle((e: PointerEvent) => {
 
   animator.step();
 }, 20);
-document.body.addEventListener('pointermove', onMouseMove, false);
+if ((window as any).PointerEvent) {
+  document.body.addEventListener('pointermove', onMouseMove, false);
+} else {
+  // Pointer event is not supported,
+  document.body.addEventListener('mousemove', (e) => {
+    onMouseMove({
+      pointerType: 'mouse',
+      clientX: e.clientX,
+      clientY: e.clientY
+    } as PointerEvent);
+  }, false);
+
+  // TODO: Prevent touch-triggered mousemove events when about button clicked
+}
 
 
 /**
@@ -364,7 +377,20 @@ async function onCanvasClick(e: PointerEvent) {
   sceneImage = newScene.sceneImage;
   isNewImageLoading = false;
 }
-canvas.addEventListener('pointerdown', onCanvasClick, false);
+if ((window as any).PointerEvent) {
+  canvas.addEventListener('pointerdown', onCanvasClick, false);
+} else {
+  // Pointer event is not supported,
+  canvas.addEventListener('mousedown', (e) => {
+    onCanvasClick({
+      pointerType: 'mouse',
+      button: e.button
+    } as PointerEvent);
+  }, false);
+
+  // Prevent touch-triggered mousedown events
+  canvas.addEventListener('touchend', e => e.preventDefault());
+}
 
 
 /**
