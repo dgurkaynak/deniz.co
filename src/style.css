@@ -127,3 +127,32 @@ li:last-child {
 .cursor-pointer {
   cursor: pointer;
 }
+
+#bottom-text {
+  position: absolute;
+  padding: 1em 0;
+  bottom: 0;
+  left: 2em;
+  right: 2em;
+  color: rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+#file-input {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+#bottom-text.show-file-input #file-input {
+  display: block;
+}
+
+#bottom-text.show-file-input:hover span {
+  text-decoration: underline;
+}

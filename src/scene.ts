@@ -11,6 +11,7 @@ import { getNext as getNextPreprocessedImageData } from './preprocessed-data';
 import * as HeadingText from './heading-text';
 import GestureHandler from './gesture-handler';
 import { disableBodyScroll } from 'body-scroll-lock';
+import * as BottomText from './bottom-text';
 
 
 
@@ -84,6 +85,11 @@ let isNewImageLoading = false;
 let isPanning = false;
 let imageTweenBackToCenter: TWEEN.Tween;
 
+let swapHelperPreparePromise: Promise<void>;
+let swapHelper: {
+  init(): Promise<void>,
+  processImage(url: string): Promise<FaceSwapResult>
+};
 
 /**
  * Main function
@@ -108,6 +114,11 @@ async function main() {
     x: imagePlaneViewport.width / width,
     y: imagePlaneViewport.height / height
   };
+
+
+  // TODO: Check face-api.js is working
+  BottomText.setText('Do not drag an image here');
+  BottomText.showFileInput(onFilesDroppedOrSelected);
 }
 
 
@@ -370,14 +381,14 @@ async function onCanvasClick(e: PointerEvent) {
   if (isNewImageLoading) return;
   isNewImageLoading = true;
 
-  const oldsceneImage = sceneImage;
+  const oldSceneImage = sceneImage;
   sceneImage = null;
 
   HeadingText.startBaffling();
 
   const [ newScene ] = await Promise.all([
     prepareNextPreprocessImage(),
-    slideOutAndDisposeImage(oldsceneImage)
+    slideOutAndDisposeImage(oldSceneImage)
   ]);
 
   HeadingText.baffleReveal(newScene.imageData.headingText, IMAGE_ANIMATE_IN_DURATION);
@@ -513,6 +524,121 @@ const onWindowResize = throttle(() => {
 }, 500);
 window.addEventListener('resize', onWindowResize, false);
 window.addEventListener('orientationchange', onWindowResize, false);
+
+
+async function prepareSwapHelperIfNecessary() {
+  if (swapHelperPreparePromise) return swapHelperPreparePromise;
+  swapHelperPreparePromise = new Promise(async (resolve, reject) => {
+    try {
+      swapHelper = await import('./scene-swap-helper');
+      await swapHelper.init();
+      resolve();
+    } catch (err) {
+      // Clear promise, so it can be re-tried
+      swapHelperPreparePromise = null;
+
+      reject(err);
+    }
+  });
+  return swapHelperPreparePromise;
+}
+
+
+/**
+ * Listen dragover event for drag&drop
+ */
+function onDragOver(event: DragEvent) {
+  // Prevent default behavior (Prevent file from being opened)
+  event.preventDefault();
+  event.dataTransfer.dropEffect = 'copy';
+
+  prepareSwapHelperIfNecessary();
+}
+document.body.addEventListener('dragover', onDragOver);
+
+
+/**
+ * Listen drop event for drag&drop
+ */
+async function onDrop(event: DragEvent) {
+  // Prevent default behavior (Prevent file from being opened)
+  event.preventDefault();
+
+  if (event.dataTransfer.files) {
+    onFilesDroppedOrSelected(event.dataTransfer.files);
+  } else {
+    BottomText.setText('Your browser is not supported, try latest Chrome');
+    // TODO: Go back to original text with some delay?
+  }
+}
+document.body.addEventListener('drop', onDrop);
+
+
+/**
+ * Main method for drag & drop or file-input selection.
+ */
+async function onFilesDroppedOrSelected(fileList: FileList) {
+  if (isNewImageLoading) {
+    BottomText.setText('Wait a little, try to swap here');
+    // TODO: Go back to original text with some delay?
+    return;
+  }
+  isNewImageLoading = true;
+
+  BottomText.setText('Processing...');
+  BottomText.hideFileInput();
+  await prepareSwapHelperIfNecessary();
+
+  const images: { name: string, url: string }[] = [];
+  // Use DataTransferItemList interface to access the file(s)
+  for (let i = 0; i < fileList.length; i++) {
+    // If dropped items aren't files, reject them
+    const file = fileList[i];
+    if (file.type.split('/')[0] == 'image') {
+      images.push({
+        name: file.name,
+        url: URL.createObjectURL(file)
+      });
+    }
+  }
+
+  if (images.length == 0) {
+    BottomText.setText('You must select an image file');
+    isNewImageLoading = false;
+    // TODO: Go back to original text with some delay?
+    return;
+  }
+
+  const faceSwapResult = await swapHelper.processImage(images[0].url);
+
+  if (faceSwapResult.faces.length == 0) {
+    BottomText.setText('No face found :/');
+    isNewImageLoading = false;
+    // TODO: Go back to original text with some delay?
+    return;
+  }
+
+  const newSceneImage = new SceneImage(faceSwapResult);
+
+  const oldSceneImage = sceneImage;
+  sceneImage = null;
+
+  HeadingText.startBaffling();
+  await Promise.all([
+    newSceneImage.init(),
+    slideOutAndDisposeImage(oldSceneImage)
+  ]);
+
+  // TODO: Prepare random messages for custom
+  HeadingText.baffleReveal('Voila', IMAGE_ANIMATE_IN_DURATION);
+  await addAndSlideInImage(newSceneImage);
+
+  sceneImage = newSceneImage;
+  isNewImageLoading = false;
+
+  BottomText.setText('Do not drag an image here');
+  BottomText.showFileInput(onFilesDroppedOrSelected);
+}
 
 
 function updateRayCasting(x: number, y: number) {
