@@ -528,7 +528,7 @@ async function prepareSwapHelperIfNecessary() {
   if (swapHelperPreparePromise) return swapHelperPreparePromise;
   swapHelperPreparePromise = new Promise(async (resolve, reject) => {
     try {
-      swapHelper = await import('./scene-swap-helper');
+      swapHelper = await import(/* webpackChunkName: "scene-swap-helper" */ './scene-swap-helper');
       await swapHelper.init();
       resolve();
     } catch (err) {
