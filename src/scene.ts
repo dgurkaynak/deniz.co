@@ -115,10 +115,8 @@ async function main() {
     y: imagePlaneViewport.height / height
   };
 
-
   // TODO: Check face-api.js is working
-  BottomText.setText('Do not drag an image here');
-  BottomText.showFileInput(onFilesDroppedOrSelected);
+  BottomText.init(onFilesDroppedOrSelected);
 }
 
 
@@ -567,8 +565,7 @@ async function onDrop(event: DragEvent) {
   if (event.dataTransfer.files) {
     onFilesDroppedOrSelected(event.dataTransfer.files);
   } else {
-    BottomText.setText('Your browser is not supported, try latest Chrome');
-    // TODO: Go back to original text with some delay?
+    BottomText.setStateNotSupportedBrowser();
   }
 }
 document.body.addEventListener('drop', onDrop);
@@ -578,15 +575,10 @@ document.body.addEventListener('drop', onDrop);
  * Main method for drag & drop or file-input selection.
  */
 async function onFilesDroppedOrSelected(fileList: FileList) {
-  if (isNewImageLoading) {
-    BottomText.setText('Wait a little, try to swap here');
-    // TODO: Go back to original text with some delay?
-    return;
-  }
+  if (isNewImageLoading) return;
   isNewImageLoading = true;
 
-  BottomText.setText('Processing...');
-  BottomText.hideFileInput();
+  BottomText.setStateProcessing();
   await prepareSwapHelperIfNecessary();
 
   const images: { name: string, url: string }[] = [];
@@ -603,18 +595,18 @@ async function onFilesDroppedOrSelected(fileList: FileList) {
   }
 
   if (images.length == 0) {
-    BottomText.setText('You must select an image file');
+    await BottomText.displayTemporaryMessage('You must drag & drop an image file', 3000);
+    BottomText.setStateIdle();
     isNewImageLoading = false;
-    // TODO: Go back to original text with some delay?
     return;
   }
 
   const faceSwapResult = await swapHelper.processImage(images[0].url);
 
   if (faceSwapResult.faces.length == 0) {
-    BottomText.setText('No face found :/');
+    await BottomText.displayTemporaryMessage('No face found :/', 3000);
+    BottomText.setStateIdle();
     isNewImageLoading = false;
-    // TODO: Go back to original text with some delay?
     return;
   }
 
@@ -636,8 +628,7 @@ async function onFilesDroppedOrSelected(fileList: FileList) {
   sceneImage = newSceneImage;
   isNewImageLoading = false;
 
-  BottomText.setText('Do not drag an image here');
-  BottomText.showFileInput(onFilesDroppedOrSelected);
+  BottomText.setStateIdle();
 }
 
 
