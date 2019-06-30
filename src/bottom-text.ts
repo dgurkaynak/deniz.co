@@ -102,13 +102,32 @@ fileInputElement.addEventListener('change', (e) => {
 }, false);
 
 
-fileInputElement.addEventListener('mouseenter', () => {
+function onMouseEnter(e: PointerEvent) {
+  // Only allow mouse events (ignore touch events)
+  if (e.pointerType != 'mouse') {
+    return;
+  }
+
   if (state != State.IDLE) return;
   baffleReveal(Text.IDLE_HOVER, BAFFLE_DURATION);
-}, false);
+}
 
 
-fileInputElement.addEventListener('mouseleave', () => {
+function onMouseLeave(e: PointerEvent) {
+  // Only allow mouse events (ignore touch events)
+  if (e.pointerType != 'mouse') {
+    return;
+  }
+
   if (state != State.IDLE) return;
   baffleReveal(Text.IDLE, BAFFLE_DURATION);
-}, false);
+}
+
+
+if ((window as any).PointerEvent) {
+  fileInputElement.addEventListener('pointerenter', onMouseEnter, false);
+  fileInputElement.addEventListener('pointerleave', onMouseLeave, false);
+} else {
+  // Pointer event is not supported, possibly safari
+  // NO-OP
+}
