@@ -387,14 +387,15 @@ if ((window as any).PointerEvent) {
 } else {
   // Pointer event is not supported,
   document.body.addEventListener('mousemove', (e) => {
+    // Prevent touch-triggered mousemove events when about button clicked
+    if (e.target == aboutButtonElement) return;
+
     onMouseMove({
       pointerType: 'mouse',
       clientX: e.clientX,
       clientY: e.clientY
     } as PointerEvent);
   }, false);
-
-  // TODO: Prevent touch-triggered mousemove events when about button clicked
 }
 
 
