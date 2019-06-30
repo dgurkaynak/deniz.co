@@ -444,7 +444,9 @@ if ((window as any).PointerEvent) {
   canvas.addEventListener('mousedown', (e) => {
     onCanvasClick({
       pointerType: 'mouse',
-      button: e.button
+      button: e.button,
+      clientX: e.clientX,
+      clientY: e.clientY
     } as PointerEvent);
   }, false);
 
