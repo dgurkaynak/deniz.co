@@ -24,7 +24,7 @@ element.id = 'bottom-text';
 document.body.appendChild(element);
 
 // File input element
-const fileInputElement = document.createElement('input');
+export const fileInputElement = document.createElement('input');
 fileInputElement.id = 'file-input';
 fileInputElement.type = 'file';
 fileInputElement.accept = 'image/*';

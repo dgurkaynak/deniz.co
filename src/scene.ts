@@ -389,6 +389,7 @@ if ((window as any).PointerEvent) {
   document.body.addEventListener('mousemove', (e) => {
     // Prevent touch-triggered mousemove events when about button clicked
     if (e.target == aboutButtonElement) return;
+    else if (e.target == BottomText.fileInputElement) return;
 
     onMouseMove({
       pointerType: 'mouse',
