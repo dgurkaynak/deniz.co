@@ -244,14 +244,55 @@ async function animateImageBackToCenter(sceneImage: SceneImage) {
 async function throwAnimateAndDispose(sceneImage: SceneImage, throwData: { velocity: number, angle: number }) {
   const viewport = fitPlaneToScreen(camera.position.z, camera.fov, width / height);
 
-  const sign = sceneImage.group.position.x >= 0 ? 1 : -1;
-  const offsetX = sign * viewport.width;
-  const targetX = sceneImage.group.position.x + offsetX;
-  const offsetY = offsetX * Math.tan(throwData.angle);
-  const targetY = sceneImage.group.position.y + offsetY;
-  const totalOffset = Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2));
-  const pixelToThreeUnitTotal = Math.sqrt(Math.pow(pixelToThreeUnitFactor.x, 2) + Math.pow(pixelToThreeUnitFactor.y, 2));
-  const duration = Math.round(totalOffset / (throwData.velocity * pixelToThreeUnitTotal));
+  let targetX: number;
+  let targetY: number;
+  let duration: number;
+
+  // Now we have 2 options:
+  // 1) Offset x dimension with viewport width
+  // 2) Offset y dimension with viewport height
+  // If we just one x-dimension offsetting and user throwed the image ~90 degrees
+  // up/down reaching that x offset will take a long time. So choose shorter one.
+
+  let option1: { targetX: number, targetY: number, duration: number };
+  let option2: { targetX: number, targetY: number, duration: number };
+
+  // Option 1) Offset x-dimension with viewport width
+  {
+    const sign = sceneImage.group.position.x >= 0 ? 1 : -1;
+    const offsetX = sign * viewport.width;
+    const targetX = sceneImage.group.position.x + offsetX;
+    const offsetY = offsetX * Math.tan(throwData.angle);
+    const targetY = sceneImage.group.position.y + offsetY;
+    const totalOffset = Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2));
+    const pixelToThreeUnitTotal = Math.sqrt(Math.pow(pixelToThreeUnitFactor.x, 2) + Math.pow(pixelToThreeUnitFactor.y, 2));
+    const duration = Math.round(totalOffset / (throwData.velocity * pixelToThreeUnitTotal));
+    option1 = { targetX, targetY, duration };
+  }
+
+  // Options 2) Offset y-dimension with viewport height
+  {
+    const sign = sceneImage.group.position.y >= 0 ? 1 : -1;
+    const offsetY = sign * viewport.height;
+    const targetY = sceneImage.group.position.y + offsetY;
+    const offsetX = offsetY / Math.tan(throwData.angle);
+    const targetX = sceneImage.group.position.x + offsetX;
+    const totalOffset = Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2));
+    const pixelToThreeUnitTotal = Math.sqrt(Math.pow(pixelToThreeUnitFactor.x, 2) + Math.pow(pixelToThreeUnitFactor.y, 2));
+    const duration = Math.round(totalOffset / (throwData.velocity * pixelToThreeUnitTotal));
+    option2 = { targetX, targetY, duration };
+  }
+
+  // Choose shorter one
+  if (option1.duration < option2.duration) {
+    targetX = option1.targetX;
+    targetY = option1.targetY;
+    duration = option1.duration;
+  } else {
+    targetX = option2.targetX;
+    targetY = option2.targetY;
+    duration = option2.duration;
+  }
 
   const tween = new TWEEN.Tween({
     x: sceneImage.group.position.x,
