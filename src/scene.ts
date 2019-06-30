@@ -88,7 +88,7 @@ let imageTweenBackToCenter: TWEEN.Tween;
 let swapHelperPreparePromise: Promise<void>;
 let swapHelper: {
   init(): Promise<void>,
-  processImage(url: string): Promise<FaceSwapResult>
+  processImage(imageFile: File): Promise<FaceSwapResult>
 };
 
 /**
@@ -626,7 +626,7 @@ async function onFilesDroppedOrSelected(fileList: FileList) {
   BottomText.setStateProcessing();
   await prepareSwapHelperIfNecessary();
 
-  const images: { name: string, url: string }[] = [];
+  const images: { name: string, file: File }[] = [];
   // Use DataTransferItemList interface to access the file(s)
   for (let i = 0; i < fileList.length; i++) {
     // If dropped items aren't files, reject them
@@ -634,7 +634,7 @@ async function onFilesDroppedOrSelected(fileList: FileList) {
     if (file.type.split('/')[0] == 'image') {
       images.push({
         name: file.name,
-        url: URL.createObjectURL(file)
+        file
       });
     }
   }
@@ -646,7 +646,7 @@ async function onFilesDroppedOrSelected(fileList: FileList) {
     return;
   }
 
-  const faceSwapResult = await swapHelper.processImage(images[0].url);
+  const faceSwapResult = await swapHelper.processImage(images[0].file);
 
   if (faceSwapResult.faces.length == 0) {
     await BottomText.displayTemporaryMessage('No face found :/', 3000);
