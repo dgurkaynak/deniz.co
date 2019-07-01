@@ -78,13 +78,30 @@ export default class SceneImage {
       this.group.add(mesh);
     }
 
-    // Face landmark coordinates to geometry vertice index
+    // Calculate all the geometry vertice indexes inside face landmark coordinates
     this.faceVertices = this.faceSwapResult.faces.map((faceLandmarks) => {
-      return faceLandmarks.points.map(([x, y]) => {
+      const rows: { [key: number]: number[] } = {};
+      const verticeIndexes: number[] = [];
+
+      faceLandmarks.points.forEach(([x, y]) => {
         const verticeX = Math.round(x / this.faceSwapResult.width * PLANE_SEGMENT_COUNT[0]);
         const verticeY = Math.round(y / this.faceSwapResult.height * PLANE_SEGMENT_COUNT[1]);
-        return verticeY * (PLANE_SEGMENT_COUNT[0] + 1) + verticeX;
+        if (!rows[verticeY]) rows[verticeY] = [];
+        rows[verticeY].push(verticeX);
       });
+
+      for (let verticeY in rows) {
+        const xVertices = rows[verticeY];
+        const minVerticeX = Math.min(...xVertices);
+        const maxVerticeX = Math.max(...xVertices);
+
+        for (let verticeX = minVerticeX; verticeX <= maxVerticeX; verticeX++) {
+          const verticeIndex = parseInt(verticeY, 10) * (PLANE_SEGMENT_COUNT[0] + 1) + verticeX;
+          verticeIndexes.push(verticeIndex);
+        }
+      }
+
+      return verticeIndexes;
     });
 
 
