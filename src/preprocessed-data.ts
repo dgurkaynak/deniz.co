@@ -53,7 +53,7 @@ export async function getNext(res: number) {
     {default: faceData},
     {default: overlayImagePath}
   ] = await Promise.all([
-    import(/* webpackMode: "eager" */ `./assets/preprocessed/${imageId}/${res}x${res}/base.png`),
+    import(/* webpackMode: "eager" */ `./assets/preprocessed/${imageId}/${res}x${res}/base.jpg`),
     import(`./assets/preprocessed/${imageId}/${res}x${res}/data.json`),
     import(/* webpackMode: "eager" */ `./assets/preprocessed/${imageId}/${res}x${res}/overlay.png`),
   ]);
