@@ -20,6 +20,10 @@ html, body {
   font-family: 'MyFont', 'Courier New', Courier, monospace;
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
+
+  /* Be specific, dark mode is coming */
+  background-color: #fff;
+  color: #000;
 }
 
 a {
@@ -99,12 +103,6 @@ main.opened {
   max-width: 25em;
 }
 
-/* nav {
-  position: absolute;
-  top: 0;
-  right: 0;
-} */
-
 ul {
   list-style-type: none;
   padding: 0;
@@ -155,4 +153,25 @@ li:last-child {
 
 #bottom-text.show-file-input:hover span {
   text-decoration: underline;
+}
+
+/* DARK MODE */
+@media (prefers-color-scheme: dark) {
+  html, body {
+    background: #181a1b;
+    color: #E8E6E3;
+  }
+
+  a:hover {
+    background: #E8E6E3;
+    color: #181a1b;
+  }
+
+  main {
+    background-color: rgba(24, 26, 27, 0.9);
+  }
+
+  #bottom-text {
+    color: rgba(232, 230, 227, 0.25);
+  }
 }
