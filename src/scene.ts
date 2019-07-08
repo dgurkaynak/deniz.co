@@ -109,6 +109,8 @@ async function main() {
   await addAndSlideInImage(newScene.sceneImage);
   sceneImage = newScene.sceneImage;
 
+  sceneImage.setupAutoWiggle();
+
   imagePlaneViewport = fitPlaneToScreen(camera.position.z - IMAGE_DISTANCE_FROM_CAMERA, camera.fov, width / height);
   pixelToThreeUnitFactor = {
     x: imagePlaneViewport.width / width,
@@ -436,6 +438,7 @@ async function onCanvasClick(e: PointerEvent) {
   await addAndSlideInImage(newScene.sceneImage);
   sceneImage = newScene.sceneImage;
   isNewImageLoading = false;
+  sceneImage.setupAutoWiggle();
 }
 if ((window as any).PointerEvent) {
   canvas.addEventListener('pointerdown', onCanvasClick, false);
@@ -531,6 +534,7 @@ gestureHandler.onTouchEnd = async (e, throwData) => {
     await addAndSlideInImage(newScene.sceneImage);
     sceneImage = newScene.sceneImage;
     isNewImageLoading = false;
+    sceneImage.setupAutoWiggle();
   } else {
     animateImageBackToCenter(sceneImage);
   }
@@ -672,6 +676,8 @@ async function onFilesDroppedOrSelected(fileList: FileList) {
 
   sceneImage = newSceneImage;
   isNewImageLoading = false;
+
+  sceneImage.setupAutoWiggle();
 
   BottomText.setStateIdle();
 }

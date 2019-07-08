@@ -1,6 +1,6 @@
 import FaceSwapResult from './face-swap-result';
 import * as THREE from 'three';
-import { canvasToURL } from './utils';
+import { canvasToURL, sleep } from './utils';
 import findIndex from 'lodash/findIndex';
 import * as TWEEN from '@tweenjs/tween.js';
 import Animator from './animator';
@@ -8,6 +8,8 @@ import Animator from './animator';
 
 const PLANE_SEGMENT_COUNT = [ 50, 50 ];
 const NOISE_FACTOR = 0.5;
+const AUTO_WIGGLE_TIMEOUT = 1500;
+const AUTO_WIGGLE_FACE_DELAY = 100;
 
 
 export default class SceneImage {
@@ -30,6 +32,7 @@ export default class SceneImage {
 
   hoveredFaceIndex = -1;
   faceTweens: { [ key: string ]: TWEEN.Tween } = {};
+  autoWiggleTimeout: any;
 
 
   constructor(faceSwapResult: FaceSwapResult) {
@@ -132,6 +135,9 @@ export default class SceneImage {
     });
 
     if (faceIndex > -1) {
+      // Clear auto wiggle timeout
+      clearTimeout(this.autoWiggleTimeout);
+
       if (faceIndex == this.hoveredFaceIndex) {
         // no-op
       } else {
@@ -199,6 +205,41 @@ export default class SceneImage {
 
     tween.start();
     Animator.getGlobal().start(500);
+  }
+
+
+  wiggleFace(faceIndex: number) {
+    const currentTween = this.faceTweens[faceIndex];
+    if (currentTween) return;
+
+    const faceVerticeIndexes = this.faceVertices[faceIndex];
+
+    const tween = new TWEEN.Tween({
+      noiseStrength: 0
+    }).to({
+      noiseStrength: [ 1, 0 ]
+    }, 500);
+    this.faceTweens[faceIndex] = tween;
+
+    tween.onUpdate(({ noiseStrength }) => {
+      faceVerticeIndexes.forEach((index) => {
+        this.geometry.vertices[index].z = Math.random() * NOISE_FACTOR * noiseStrength;
+      });
+      this.geometry.verticesNeedUpdate = true;
+    });
+
+    tween.start();
+    Animator.getGlobal().start(500);
+  }
+
+
+  setupAutoWiggle() {
+    this.autoWiggleTimeout = setTimeout(async () => {
+      for (let i = 0; i < this.faceSwapResult.faces.length; i++) {
+        this.wiggleFace(i);
+        await sleep(AUTO_WIGGLE_FACE_DELAY);
+      }
+    }, AUTO_WIGGLE_TIMEOUT);
   }
 
 
