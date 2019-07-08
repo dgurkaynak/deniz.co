@@ -2,16 +2,18 @@
 
 @font-face {
   font-family: 'MyFont';
+  src: url('./assets/fonts/subset-abnzAghuaovzv.woff2') format('woff2'),
+      url('./assets/fonts/subset-abnzAghuaovzv.woff') format('woff');
+  font-weight: bold;
   font-style: normal;
-  font-weight: 400;
-  src: url('./assets/fonts/regular.woff') format('woff');
 }
 
 @font-face {
   font-family: 'MyFont';
+  src: url('./assets/fonts/subset-abnzAghuaEBANRKU.woff2') format('woff2'),
+      url('./assets/fonts/subset-abnzAghuaEBANRKU.woff') format('woff');
+  font-weight: normal;
   font-style: normal;
-  font-weight: 800;
-  src: url('./assets/fonts/bold.woff') format('woff');
 }
 
 html, body {
