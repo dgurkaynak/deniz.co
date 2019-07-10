@@ -7,6 +7,7 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
+const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 
 
 module.exports = {
@@ -54,6 +55,23 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin(),
+    new FaviconsWebpackPlugin({
+      logo: './src/assets/shaka.png',
+      persistentCache: true,
+      inject: true,
+      icons: {
+        android: false,
+        appleIcon: false,
+        appleStartup: false,
+        coast: false,
+        favicons: true,
+        firefox: false,
+        opengraph: false,
+        twitter: false,
+        yandex: false,
+        windows: false
+      }
+    }),
     new MiniCssExtractPlugin({
       filename: 'style.css'
     }),
