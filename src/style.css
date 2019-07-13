@@ -78,6 +78,7 @@ main.opened {
 }
 
 #heading-text {
+  font-size: 1.17em;
   margin: 0.6em;
   display: inline-block;
 }
