@@ -28,6 +28,10 @@ html, body {
   color: #000;
 }
 
+::selection {
+  background: #ff0;
+}
+
 a {
   color: inherit;
   padding: 0.15em 0.25em;
