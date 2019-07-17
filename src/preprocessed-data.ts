@@ -4,6 +4,11 @@ import shuffle from 'lodash/shuffle';
 
 const images = [
   {
+    id: 'abraham-lincoln',
+    resolutions: [512, 1024, 1536],
+    headingText: `Give me six hours to chop down a tree and I will spend the first four sharpening the axe. — Abraham Lincoln`
+  },
+  {
     id: 'acdc',
     resolutions: [512, 1024, 1536],
     headingText: `He believes in simplicity, like AC/DC.`
@@ -14,14 +19,54 @@ const images = [
     headingText: `He wanted to be an astronaut, but things didn't go well.`
   },
   {
-    id: 'friends',
-    resolutions: [512, 1024, 1536],
-    headingText: 'He thinks that Monica > Rachel > Phoebe'
+    id: 'claude-shannon',
+    resolutions: [512, 1024],
+    headingText: 'His favorite genious: Claude Shannon'
   },
   {
-    id: 'matrix',
+    id: 'cosmos',
     resolutions: [512, 1024, 1536, 2048],
-    headingText: `He has watched "The Matrix" 19 times.`
+    headingText: 'He has watched "Cosmos" 19 times.'
+  },
+  {
+    id: 'david-hockney',
+    resolutions: [512, 1024, 1536],
+    headingText: 'Anything simple always interests me. — David Hockney'
+  },
+  {
+    id: 'friends',
+    resolutions: [512, 1024, 1536],
+    headingText: 'He thinks Monica > Rachel > Phoebe.'
+  },
+  {
+    id: 'gnr',
+    resolutions: [512, 1024, 1536],
+    headingText: `TODO`
+  },
+  {
+    id: 'grace-hopper',
+    resolutions: [512, 1024, 1536],
+    headingText: `TODO`
+  },
+  {
+    id: 'john-carmack',
+    resolutions: [512, 1024],
+    headingText: `The speed of light sucks. - John Carmack`
+  },
+  {
+    id: 'lena',
+    resolutions: [512, 1024],
+    headingText: `TODO`
+  },
+  {
+    id: 'matrix2',
+    resolutions: [512, 1024, 1536],
+    headingText: `He should have choosen blue pill.`
+  },
+  {
+    id: 'paul-leary',
+    resolutions: [512, 1024],
+    headingText: `That’s what’s cool about working with computers. They don’t argue, they remember everything and they don’t drink all your beer. - Paul Leary`
   },
   {
     id: 'seinfeld',
@@ -29,10 +74,10 @@ const images = [
     headingText: 'He loves watching Seinfeld while eating.'
   },
   {
-    id: 'shannon',
-    resolutions: [512, 1024, 1536],
-    headingText: 'His favorite genious.'
-  }
+    id: 'zeki-muren',
+    resolutions: [512, 1024, 1536, 2048],
+    headingText: 'Gitme sana muhtacım - Zeki Müren'
+  },
 ];
 
 const imageIds = images.map(i => i.id);
