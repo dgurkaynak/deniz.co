@@ -416,6 +416,9 @@ async function onCanvasClick(e: PointerEvent) {
   // Only allow main (left) button
   if (e.button != 0) return;
 
+  // Defensive
+  if (!sceneImage) return;
+
   // If not clicked on image, do not change
   updateRayCasting(e.clientX, e.clientY);
   const intersects = raycaster.intersectObject(sceneImage.baseMesh);

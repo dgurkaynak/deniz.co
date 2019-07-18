@@ -33,6 +33,7 @@ export default class SceneImage {
   hoveredFaceIndex = -1;
   faceTweens: { [ key: string ]: TWEEN.Tween } = {};
   autoWiggleTimeout: any;
+  isDisposed = false;
 
 
   constructor(faceSwapResult: FaceSwapResult) {
@@ -238,12 +239,15 @@ export default class SceneImage {
       for (let i = 0; i < this.faceSwapResult.faces.length; i++) {
         this.wiggleFace(i);
         await sleep(AUTO_WIGGLE_FACE_DELAY);
+        if (this.isDisposed) return;
       }
     }, AUTO_WIGGLE_TIMEOUT);
   }
 
 
   dispose() {
+    this.isDisposed = true;
+
     this.geometry.dispose();
     this.geometry = null;
 
@@ -267,6 +271,8 @@ export default class SceneImage {
 
     Object.values(this.faceTweens).forEach(tween => tween.stop());
     this.faceTweens = {};
+
+    clearTimeout(this.autoWiggleTimeout);
   }
 }
 
