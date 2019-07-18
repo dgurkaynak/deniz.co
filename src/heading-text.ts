@@ -9,7 +9,7 @@ let nonLockedText = '';
 
 const mainElement = document.getElementById('main');
 const lineHeight = 21;
-const correctMaxLineHeightInterval = setInterval(correctMaxLineHeight, 1000);
+const correctMaxLineHeightInterval = setInterval(correctMaxLineHeight, 500);
 
 
 /**
