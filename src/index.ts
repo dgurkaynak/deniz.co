@@ -21,8 +21,10 @@ aboutButtonElement.addEventListener('click', () => {
   const isOpened = mainElement.classList.contains('opened');
   if (isOpened) {
     mainElement.classList.remove('opened');
+    aboutButtonElement.textContent = 'About';
   } else {
     mainElement.classList.add('opened');
+    aboutButtonElement.textContent = 'Close';
   }
 }, false);
 
