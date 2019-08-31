@@ -97,7 +97,7 @@ let swapHelper: {
 async function main() {
   // Print github repo to console
   console.log(
-    '%cHey there, if you\'re interested: source code of this website avaliable on https://github.com/dgurkaynak/deniz.co',
+    '%cHey there, if you\'re interested: source code of this website is avaliable on https://github.com/dgurkaynak/deniz.co',
     'font-size: 16px;'
   );
 
