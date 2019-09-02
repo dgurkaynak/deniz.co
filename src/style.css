@@ -65,17 +65,13 @@ main {
   transition: max-height 0.25s ease-in;
 }
 
-main[data-line-count='1'] {
-  max-height: 2.3em;
-}
-
-main[data-line-count='2'] {
-  max-height: 3.4em;
-}
-
-main[data-line-count='3'] {
-  max-height: 4.5em;
-}
+main[data-line-count='1'] { max-height: 2.3em; }
+main[data-line-count='2'] { max-height: 3.4em; }
+main[data-line-count='3'] { max-height: 4.7em; }
+main[data-line-count='4'] { max-height: 6.0em; }
+main[data-line-count='5'] { max-height: 7.4em; }
+main[data-line-count='6'] { max-height: 8.7em; }
+main[data-line-count='7'] { max-height: 10.0em; }
 
 main.opened {
   max-height: 100% !important;
