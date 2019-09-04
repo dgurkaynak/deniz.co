@@ -359,6 +359,9 @@ Animator.setGlobal(animator);
  * because touch events also generates `mousemove` event.
  */
 const onMouseMove = throttle((e: PointerEvent) => {
+  // Reset the cursor anyway
+  canvas.classList.remove('cursor-pointer');
+
   if (!sceneImage) return;
 
   // Only allow mouse events (ignore touch events)
@@ -390,8 +393,6 @@ const onMouseMove = throttle((e: PointerEvent) => {
     sceneImageZoomTween.start();
     Animator.getGlobal().start(IMAGE_ZOOM_ANIMATE_DURATION + ANIMATOR_EXTRA_DURATION);
   } else {
-    canvas.classList.remove('cursor-pointer');
-
     // Animate scene image to zoom out
     sceneImageZoomTween && sceneImageZoomTween.stop();
     sceneImageZoomTween = new TWEEN.Tween({ z: sceneImage.group.position.z }).to({ z: 0 }, IMAGE_ZOOM_ANIMATE_DURATION);
@@ -449,6 +450,10 @@ async function onCanvasClick(e: PointerEvent) {
   const oldSceneImage = sceneImage;
   sceneImage = null;
 
+  // Reset the cursor
+  canvas.classList.remove('cursor-pointer');
+
+  // Stop the zoom animation if existing
   sceneImageZoomTween && sceneImageZoomTween.stop();
   sceneImageZoomTween = null;
 
