@@ -360,7 +360,7 @@ Animator.setGlobal(animator);
  */
 const onMouseMove = throttle((e: PointerEvent) => {
   // Reset the cursor anyway
-  canvas.classList.remove('cursor-pointer');
+  canvas.classList.remove('set-cursor');
 
   if (!sceneImage) return;
 
@@ -383,7 +383,7 @@ const onMouseMove = throttle((e: PointerEvent) => {
   const intersects = raycaster.intersectObject(sceneImage.baseMesh);
   if (intersects.length > 0) {
     sceneImage.onMouseMove(intersects[0].uv);
-    canvas.classList.add('cursor-pointer');
+    canvas.classList.add('set-cursor');
 
     // Animate scene image to zoom in
     sceneImageZoomTween && sceneImageZoomTween.stop();
@@ -451,7 +451,7 @@ async function onCanvasClick(e: PointerEvent) {
   sceneImage = null;
 
   // Reset the cursor
-  canvas.classList.remove('cursor-pointer');
+  canvas.classList.remove('set-cursor');
 
   // Stop the zoom animation if existing
   sceneImageZoomTween && sceneImageZoomTween.stop();
