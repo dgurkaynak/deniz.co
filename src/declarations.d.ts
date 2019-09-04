@@ -9,6 +9,7 @@ declare module 'face-api.js'
 declare module 'body-scroll-lock'
 declare module 'baffle'
 declare module 'blueimp-load-image'
+declare module 'detect-it'
 
 declare module '*/poisson-blender-worker' {
   class PoissonBlenderWorker extends Worker {

@@ -55,6 +55,7 @@
     "baffle": "^0.3.6",
     "blueimp-load-image": "^2.22.0",
     "body-scroll-lock": "^2.6.1",
+    "detect-it": "^3.0.5",
     "face-api.js": "0.19.0",
     "fast-glob": "2.2.6",
     "file-saver": "^2.0.2",
