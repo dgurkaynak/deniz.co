@@ -444,10 +444,10 @@ async function onCanvasClick(e: PointerEvent) {
   sceneImage.setupAutoWiggle();
 }
 if ((window as any).PointerEvent) {
-  canvas.addEventListener('pointerdown', onCanvasClick, false);
+  canvas.addEventListener('pointerup', onCanvasClick, false);
 } else {
   // Pointer event is not supported,
-  canvas.addEventListener('mousedown', (e) => {
+  canvas.addEventListener('mouseup', (e) => {
     onCanvasClick({
       pointerType: 'mouse',
       button: e.button,
