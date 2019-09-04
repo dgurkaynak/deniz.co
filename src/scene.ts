@@ -21,6 +21,8 @@ const IMAGE_ANIMATE_IN_DURATION = 1000;
 const IMAGE_ANIMATE_OUT_DURATION = 1000;
 const IMAGE_ANIMATE_BACK_TO_CENTER_DURATION = 100;
 const IMAGE_DISTANCE_FROM_CAMERA = 1;
+const IMAGE_ZOOM_Z = 0.5;
+const IMAGE_ZOOM_ANIMATE_DURATION = 250;
 const ANIMATOR_EXTRA_DURATION = 500; // Some times tween.onComplete does not fire.
 
 
@@ -84,6 +86,7 @@ let sceneImage: SceneImage;
 let isNewImageLoading = false;
 let isPanning = false;
 let imageTweenBackToCenter: TWEEN.Tween;
+let sceneImageZoomTween: TWEEN.Tween;
 
 let swapHelperPreparePromise: Promise<void>;
 let swapHelper: {
@@ -378,8 +381,24 @@ const onMouseMove = throttle((e: PointerEvent) => {
   if (intersects.length > 0) {
     sceneImage.onMouseMove(intersects[0].uv);
     canvas.classList.add('cursor-pointer');
+
+    // Animate scene image to zoom in
+    sceneImageZoomTween && sceneImageZoomTween.stop();
+    sceneImageZoomTween = new TWEEN.Tween({ z: sceneImage.group.position.z }).to({ z: IMAGE_ZOOM_Z }, IMAGE_ZOOM_ANIMATE_DURATION);
+    sceneImageZoomTween.easing(TWEEN.Easing.Quartic.Out);
+    sceneImageZoomTween.onUpdate(({ z }) => { sceneImage.group.position.z = z; });
+    sceneImageZoomTween.start();
+    Animator.getGlobal().start(IMAGE_ZOOM_ANIMATE_DURATION + ANIMATOR_EXTRA_DURATION);
   } else {
     canvas.classList.remove('cursor-pointer');
+
+    // Animate scene image to zoom out
+    sceneImageZoomTween && sceneImageZoomTween.stop();
+    sceneImageZoomTween = new TWEEN.Tween({ z: sceneImage.group.position.z }).to({ z: 0 }, IMAGE_ZOOM_ANIMATE_DURATION);
+    sceneImageZoomTween.easing(TWEEN.Easing.Quartic.Out);
+    sceneImageZoomTween.onUpdate(({ z }) => { sceneImage.group.position.z = z; });
+    sceneImageZoomTween.start();
+    Animator.getGlobal().start(IMAGE_ZOOM_ANIMATE_DURATION + ANIMATOR_EXTRA_DURATION);
   }
 
   animator.step();
@@ -429,6 +448,9 @@ async function onCanvasClick(e: PointerEvent) {
 
   const oldSceneImage = sceneImage;
   sceneImage = null;
+
+  sceneImageZoomTween && sceneImageZoomTween.stop();
+  sceneImageZoomTween = null;
 
   HeadingText.startBaffling();
 
