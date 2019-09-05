@@ -10,6 +10,7 @@ const PLANE_SEGMENT_COUNT = [ 50, 50 ];
 const NOISE_FACTOR = 0.5;
 const AUTO_WIGGLE_TIMEOUT = 1500;
 const AUTO_WIGGLE_FACE_DELAY = 100;
+const TOGGLE_ALL_FACES_DELAY = 100;
 
 
 export default class SceneImage {
@@ -32,7 +33,10 @@ export default class SceneImage {
 
   hoveredFaceIndex = -1;
   faceTweens: { [ key: string ]: TWEEN.Tween } = {};
+
   autoWiggleTimeout: any;
+  areAllFacesToggledOn = false;
+
   isDisposed = false;
 
 
@@ -242,6 +246,21 @@ export default class SceneImage {
         if (this.isDisposed) return;
       }
     }, AUTO_WIGGLE_TIMEOUT);
+  }
+
+
+  async toggleAllFaces() {
+    this.areAllFacesToggledOn = !this.areAllFacesToggledOn;
+
+    for (let i = 0; i < this.faceSwapResult.faces.length; i++) {
+      if (this.areAllFacesToggledOn) {
+        this.revealOriginalFace(i);
+      } else {
+        this.swapBackDenizFace(i);
+      }
+      await sleep(TOGGLE_ALL_FACES_DELAY);
+      if (this.isDisposed) return;
+    }
   }
 
 

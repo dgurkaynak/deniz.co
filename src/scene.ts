@@ -498,7 +498,7 @@ gestureHandler.onTap = ({ x, y }) => {
   updateRayCasting(x, y);
   const intersects = raycaster.intersectObject(sceneImage.baseMesh);
   if (intersects.length > 0) {
-    sceneImage.onMouseMove(intersects[0].uv);
+    sceneImage.toggleAllFaces();
     animator.step();
   }
 };
