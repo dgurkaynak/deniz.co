@@ -345,11 +345,15 @@ aboutButtonElement.addEventListener('click', () => {
  * Open/collapse header to show/hide about text
  */
 function setAboutTextVisibility(isVisible: boolean) {
+  const isOpened = mainElement.classList.contains('opened');
+
   if (isVisible) {
+    if (isOpened) return;
     mainElement.classList.add('opened');
     aboutButtonElement.textContent = 'Close';
     HeadingText.lock();
   } else {
+    if (!isOpened) return;
     mainElement.classList.remove('opened');
     aboutButtonElement.textContent = 'About';
     HeadingText.unlock();
@@ -451,6 +455,8 @@ async function onCanvasClick(e: PointerEvent) {
   // Only allow main (left) button
   if (e.button != 0) return;
 
+  setAboutTextVisibility(false);
+
   // Defensive
   if (!sceneImage) return;
 
@@ -472,7 +478,11 @@ async function onCanvasClick(e: PointerEvent) {
   sceneImageZoomTween && sceneImageZoomTween.stop();
   sceneImageZoomTween = null;
 
-  HeadingText.startBaffling();
+  // If we've just closed about text just above, `baffle.reveal` method will run on next tick.
+  // So, in order to override baffle.reveal command, we also start baffling on the next tick.
+  setTimeout(() => {
+    HeadingText.startBaffling();
+  }, 0);
 
   const [ newScene ] = await Promise.all([
     prepareNextPreprocessImage(),
@@ -507,6 +517,8 @@ if ((window as any).PointerEvent) {
  * Listen for tap event on canvas.
  */
 gestureHandler.onTap = ({ x, y }) => {
+  setAboutTextVisibility(false);
+
   if (!sceneImage) return;
 
   // Check whether tapped on a face or not
