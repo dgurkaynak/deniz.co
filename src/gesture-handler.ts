@@ -47,6 +47,8 @@ export default class GestureHandler {
 
 
   private _onTouchStart(e: TouchEvent) {
+    if (e.touches.length > 1) return;
+
     this.canTap = true;
     this.touchStartTime = e.timeStamp;
     const changedTouch = e.changedTouches[0];
@@ -58,6 +60,8 @@ export default class GestureHandler {
 
 
   private _onTouchMove(e: TouchEvent) {
+    if (e.touches.length > 1) return;
+
     const changedTouch = e.changedTouches[0];
     const touch = {
       timestamp: e.timeStamp,
@@ -88,6 +92,8 @@ export default class GestureHandler {
 
 
   private _onTouchEnd(e: TouchEvent) {
+    if (e.touches.length > 1) return;
+
     let throwData: { velocity: number, angle: number };
     const changedTouch = e.changedTouches[0];
     // `changedTouch` coordinates are alway same with the last one, but timeStamp is different
