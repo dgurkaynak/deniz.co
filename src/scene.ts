@@ -520,8 +520,6 @@ if ((window as any).PointerEvent) {
  * Listen for tap event on canvas.
  */
 gestureHandler.onTap = ({ x, y }) => {
-  setAboutTextVisibility(false);
-
   if (!sceneImage) return;
 
   // Check whether tapped on a face or not
@@ -539,6 +537,7 @@ gestureHandler.onTap = ({ x, y }) => {
  */
 gestureHandler.onTouchStart = (e) => {
   const changedTouch = e.changedTouches[0];
+  setAboutTextVisibility(false);
 
   // Check mouse whether on a face or not
   updateRayCasting(changedTouch.pageX, changedTouch.pageY);
