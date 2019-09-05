@@ -1,10 +1,10 @@
 # [deniz.co](https://deniz.co)
 
-My personal website which features face-swapping, perfomed completely in (modern-)browser-side, with some 3d glitchy transition animation.
+My (highly-)personal website which features face-swapping, perfomed completely in (modern-)browser-side, developed in progressive enhancement mindset.
 
 [![Mouseover face-swapping demo](./demo-armstrong.gif)](https://deniz.co)
 
-You can also drag & drop any face-image to try yourself.
+You can also drag & drop any face-image to try it yourself.
 
 ## Build & Running
 
