@@ -445,29 +445,9 @@ if ((window as any).PointerEvent) {
 
 
 /**
- * Canvas element mouse-click handler. Actually listen for `pointerdown` event
- * instead of `click`, because touch devices also fires `click` event. We want to
- * seperate that.
+ * Loads next scene image.
  */
-async function onCanvasClick(e: PointerEvent) {
-  // Only allow mouse move events (ignore touch events)
-  if (e.pointerType != 'mouse') {
-    return;
-  }
-
-  // Only allow main (left) button
-  if (e.button != 0) return;
-
-  setAboutTextVisibility(false);
-
-  // Defensive
-  if (!sceneImage) return;
-
-  // If not clicked on image, do not change
-  updateRayCasting(e.clientX, e.clientY);
-  const intersects = raycaster.intersectObject(sceneImage.baseMesh);
-  if (intersects.length == 0) return;
-
+async function loadNextSceneImage() {
   if (isNewImageLoading) return;
   isNewImageLoading = true;
 
@@ -497,6 +477,34 @@ async function onCanvasClick(e: PointerEvent) {
   sceneImage = newScene.sceneImage;
   isNewImageLoading = false;
   sceneImage.setupAutoWiggle();
+}
+
+
+/**
+ * Canvas element mouse-click handler. Actually listen for `pointerdown` event
+ * instead of `click`, because touch devices also fires `click` event. We want to
+ * seperate that.
+ */
+async function onCanvasClick(e: PointerEvent) {
+  // Only allow mouse move events (ignore touch events)
+  if (e.pointerType != 'mouse') {
+    return;
+  }
+
+  // Only allow main (left) button
+  if (e.button != 0) return;
+
+  setAboutTextVisibility(false);
+
+  // Defensive
+  if (!sceneImage) return;
+
+  // If not clicked on image, do not change
+  updateRayCasting(e.clientX, e.clientY);
+  const intersects = raycaster.intersectObject(sceneImage.baseMesh);
+  if (intersects.length == 0) return;
+
+  await loadNextSceneImage();
 }
 if ((window as any).PointerEvent) {
   canvas.addEventListener('pointerup', onCanvasClick, false);
@@ -598,6 +606,37 @@ gestureHandler.onTouchEnd = async (e, throwData) => {
     animateImageBackToCenter(sceneImage);
   }
 };
+
+
+/**
+ * Listen for keyboard arrow keys
+ */
+const onKeyDown = (e: KeyboardEvent) => {
+  const KeyCode = {
+    LEFT: 37,
+    UP: 38,
+    RIGHT: 39,
+    DOWN: 40
+  };
+
+  switch(e.keyCode) {
+    case KeyCode.RIGHT: {
+      loadNextSceneImage();
+      return;
+    }
+
+    case KeyCode.DOWN: {
+      setAboutTextVisibility(true);
+      return;
+    }
+
+    case KeyCode.UP: {
+      setAboutTextVisibility(false);
+      return;
+    }
+  }
+};
+document.addEventListener('keydown', onKeyDown, false);
 
 
 /**
