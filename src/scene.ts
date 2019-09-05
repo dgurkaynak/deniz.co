@@ -60,6 +60,14 @@ renderer.setClearColor(0xffffff, 0);
 // Bring back the console.log
 console.log = _consoleLog;
 
+// DOM elements
+const mainElement = document.getElementById('main');
+const headingTextElement = document.getElementById('heading-text');
+// About button
+const aboutButtonElement = document.createElement('span');
+aboutButtonElement.id = 'about-button';
+aboutButtonElement.textContent = 'About';
+
 // Stats
 const stats = process.env.NODE_ENV == 'development' ? new Stats() : null;
 if (stats) {
@@ -106,6 +114,7 @@ async function main() {
 
   // Three dot loading animation is started in index, so not start again
   const newScene = await prepareNextPreprocessImage();
+  mainElement.insertBefore(aboutButtonElement, headingTextElement.nextSibling);
   mainElement.classList.remove('opened');
   HeadingText.stopThreeDotLoading();
   HeadingText.baffleReveal(newScene.imageData.headingText, IMAGE_ANIMATE_IN_DURATION);
@@ -326,20 +335,26 @@ async function throwAnimateAndDispose(sceneImage: SceneImage, throwData: { veloc
 /**
  * Listen "about" button click
  */
-const aboutButtonElement = document.getElementById('about-button');
-const mainElement = document.getElementById('main');
 aboutButtonElement.addEventListener('click', () => {
-  // We're going to check `opened` class is added or removed (in index.ts :/)
-  // So checking it in next tick
-  setTimeout(() => {
-    const isOpened = mainElement.classList.contains('opened');
-    if (isOpened) {
-      HeadingText.lock();
-    } else {
-      HeadingText.unlock();
-    }
-  }, 0);
+  const isOpened = mainElement.classList.contains('opened');
+  setAboutTextVisibility(!isOpened);
 }, false);
+
+
+/**
+ * Open/collapse header to show/hide about text
+ */
+function setAboutTextVisibility(isVisible: boolean) {
+  if (isVisible) {
+    mainElement.classList.add('opened');
+    aboutButtonElement.textContent = 'Close';
+    HeadingText.lock();
+  } else {
+    mainElement.classList.remove('opened');
+    aboutButtonElement.textContent = 'About';
+    HeadingText.unlock();
+  }
+}
 
 
 /**
