@@ -113,7 +113,10 @@ async function main() {
   );
 
   // Three dot loading animation is started in index, so not start again
-  const newScene = await prepareNextPreprocessImage();
+  const [newScene] = await Promise.all([
+    prepareNextPreprocessImage(),
+    HeadingText.prepareBaffleIfNecessary()
+  ]);
   mainElement.insertBefore(aboutButtonElement, headingTextElement.nextSibling);
   mainElement.classList.remove('opened');
   HeadingText.stopThreeDotLoading();

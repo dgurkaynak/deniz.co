@@ -54,7 +54,7 @@ export function correctMaxLineHeight() {
 /**
  * Baffle stuff
  */
-async function prepareBaffleIfNecessary() {
+export async function prepareBaffleIfNecessary() {
   if (!b) {
     const { default: baffle } = await import(/* webpackChunkName: "baffle" */ 'baffle');
     b = baffle(headingTextEl);
