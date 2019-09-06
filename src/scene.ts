@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import throttle from 'lodash/throttle';
 import * as TWEEN from '@tweenjs/tween.js';
 import Stats from 'stats.js';
+import detectIt from 'detect-it';
 import Animator from './animator';
 import FaceSwapResult from './face-swap-result';
 import { loadImage, sleep } from './utils';
@@ -24,6 +25,7 @@ const IMAGE_DISTANCE_FROM_CAMERA = 1;
 const IMAGE_ZOOM_Z = 0.5;
 const IMAGE_ZOOM_ANIMATE_DURATION = 250;
 const ANIMATOR_EXTRA_DURATION = 500; // Some times tween.onComplete does not fire.
+const IMAGE_INITIAL_THROW_TIMEOUT = 10000;
 
 
 // Disable body scroll
@@ -95,6 +97,7 @@ let isNewImageLoading = false;
 let isPanning = false;
 let imageTweenBackToCenter: TWEEN.Tween;
 let sceneImageZoomTween: TWEEN.Tween;
+let sceneImageInitialThrowTimeout: any;
 
 let swapHelperPreparePromise: Promise<void>;
 let swapHelper: {
@@ -125,6 +128,16 @@ async function main() {
   sceneImage = newScene.sceneImage;
 
   sceneImage.setupAutoWiggle();
+
+  if (detectIt.primaryInput == 'touch') {
+    sceneImageInitialThrowTimeout = setTimeout(() => {
+      if (!sceneImage) return;
+      throwImageAndLoadNext({
+        angle: (Math.random() - 0.5) * Math.PI,
+        velocity: 0.8
+      });
+    }, IMAGE_INITIAL_THROW_TIMEOUT);
+  }
 
   imagePlaneViewport = fitPlaneToScreen(camera.position.z - IMAGE_DISTANCE_FROM_CAMERA, camera.fov, width / height);
   pixelToThreeUnitFactor = {
@@ -603,6 +616,8 @@ async function throwImageAndLoadNext(throwData: {angle: number, velocity: number
 
   const oldsceneImage = sceneImage;
   sceneImage = null;
+
+  clearTimeout(sceneImageInitialThrowTimeout);
 
   HeadingText.startBaffling();
 
