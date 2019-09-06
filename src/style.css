@@ -62,7 +62,7 @@ main {
 .javascript-enabled main {
   max-height: 2.3em;
   overflow: hidden;
-  transition: max-height 0.25s ease-in;
+  transition: max-height 0.25s ease-out;
 }
 
 main[data-line-count='1'] { max-height: 2.3em; }
@@ -104,6 +104,19 @@ main.opened {
 #about-text {
   margin: 0.8em;
   max-width: 25em;
+  transition: opacity 0.25s ease-in;
+}
+
+.javascript-enabled main:not(.opened) #about-text {
+  opacity: 0;
+}
+
+.javascript-enabled main:not(.opened) nav {
+  opacity: 0;
+}
+
+nav {
+  transition: opacity 0.25s ease-in;
 }
 
 ul {
