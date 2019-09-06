@@ -588,27 +588,35 @@ gestureHandler.onTouchEnd = async (e, throwData) => {
   if (!sceneImage) return;
 
   if (throwData) {
-    isNewImageLoading = true;
-
-    const oldsceneImage = sceneImage;
-    sceneImage = null;
-
-    HeadingText.startBaffling();
-
-    const [ newScene ] = await Promise.all([
-      prepareNextPreprocessImage(),
-      throwAnimateAndDispose(oldsceneImage, throwData)
-    ]);
-
-    HeadingText.baffleReveal(newScene.imageData.headingText, IMAGE_ANIMATE_IN_DURATION);
-    await addAndSlideInImage(newScene.sceneImage);
-    sceneImage = newScene.sceneImage;
-    isNewImageLoading = false;
-    sceneImage.setupAutoWiggle();
+    await throwImageAndLoadNext(throwData);
   } else {
     animateImageBackToCenter(sceneImage);
   }
 };
+
+
+/**
+ * Throwing logic and then load the next one.
+ */
+async function throwImageAndLoadNext(throwData: {angle: number, velocity: number}) {
+  isNewImageLoading = true;
+
+  const oldsceneImage = sceneImage;
+  sceneImage = null;
+
+  HeadingText.startBaffling();
+
+  const [ newScene ] = await Promise.all([
+    prepareNextPreprocessImage(),
+    throwAnimateAndDispose(oldsceneImage, throwData)
+  ]);
+
+  HeadingText.baffleReveal(newScene.imageData.headingText, IMAGE_ANIMATE_IN_DURATION);
+  await addAndSlideInImage(newScene.sceneImage);
+  sceneImage = newScene.sceneImage;
+  isNewImageLoading = false;
+  sceneImage.setupAutoWiggle();
+}
 
 
 /**
