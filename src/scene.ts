@@ -547,6 +547,8 @@ gestureHandler.onTouchStart = (e) => {
   const changedTouch = e.changedTouches[0];
   setAboutTextVisibility(false);
 
+  if (!sceneImage) return;
+
   // Check mouse whether on a face or not
   updateRayCasting(changedTouch.pageX, changedTouch.pageY);
   const intersects = raycaster.intersectObject(sceneImage.baseMesh);
@@ -564,6 +566,7 @@ gestureHandler.onTouchStart = (e) => {
  */
 gestureHandler.onPan = (e, delta) => {
   if (!isPanning) return;
+  if (!sceneImage) return;
 
   // Position
   sceneImage.group.position.x += delta.x * pixelToThreeUnitFactor.x;
