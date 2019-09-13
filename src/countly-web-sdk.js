@@ -2169,7 +2169,7 @@
     function prepareParams(params) {
         var str = [];
         for (var i in params) {
-            str.push(i + "=" + encodeURIComponent(params[i]));
+            str.unshift(i + "=" + encodeURIComponent(params[i]));
         }
         return str.join("&");
     }
