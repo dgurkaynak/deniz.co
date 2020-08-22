@@ -23,9 +23,7 @@ const correctMaxLineHeightInterval = setInterval(correctMaxLineHeight, 500);
  * When about text is opened, show the default text w/ baffle animation.
  */
 export function showDefaultTitle() {
-  if (isShowingDefaultText) {
-    return;
-  }
+  if (isShowingDefaultText) return;
 
   isShowingDefaultText = true;
   stopAllAnimations();
@@ -40,9 +38,7 @@ export function showDefaultTitle() {
  * When about text is collapsed, show the current image's text.
  */
 export function returnToLastState() {
-  if (!isShowingDefaultText) {
-    return;
-  }
+  if (!isShowingDefaultText) return;
 
   stopAllAnimations();
   b && b.text(() => title);
@@ -92,11 +88,7 @@ export async function init() {
  */
 export async function startBaffleAnimation() {
   await init();
-
-  if (isShowingDefaultText) {
-    return;
-  }
-
+  if (isShowingDefaultText) return;
   b.start();
 }
 
@@ -124,9 +116,7 @@ export async function update(options: {
   link = options.link;
   headingLinkEl.href = options.link || '';
 
-  if (isShowingDefaultText) {
-    return;
-  }
+  if (isShowingDefaultText) return;
 
   b.text(() => title);
   b.reveal(options.baffleAnimationDuration);
@@ -147,10 +137,7 @@ let threeDotUpdateInterval: any;
 let threeDotUpdateCount = 0;
 
 export function startThreeDotLoading() {
-  if (isShowingDefaultText) {
-    return;
-  }
-
+  if (isShowingDefaultText) return;
   threeDotUpdateCount = 0
   headingTitleEl.textContent = defaultTitle;
   clearTimeout(threeDotUpdateInterval);
