@@ -115,7 +115,7 @@ const imageIds = images.map(i => i.id);
 const firstImageId = sample(images.filter(i => !!i.canBeFirst).map(i => i.id));
 const queue = [
   firstImageId,
-  ...pull(imageIds, firstImageId)
+  ...shuffle(pull(imageIds, firstImageId))
 ];
 
 
