@@ -71,7 +71,8 @@ const images = [
   {
     id: 'lena',
     resolutions: [512, 1024],
-    headingText: `He has a copy of November 1972 issue of Playboy.`
+    headingText: `He has a copy of November 1972 issue of Playboy.`,
+    link: 'https://en.wikipedia.org/wiki/Lenna'
   },
   {
     id: 'matrix2',
@@ -91,12 +92,14 @@ const images = [
   {
     id: 'tia-toomey',
     resolutions: [512, 1024, 1536, 2048],
-    headingText: `He likes pushing himself to his limits, at least in a CrossFit box.`
+    headingText: `He likes pushing himself to his limits, at least in a CrossFit box.`,
+    link: 'https://www.youtube.com/watch?v=pmWTjhpeoI4'
   },
   {
     id: 'zeki-muren',
     resolutions: [512, 1024, 1536, 2048],
-    headingText: `He feels that he's (emotionally) old enough to love Zeki Müren, one of the pillars of Turkish raki culture.`
+    headingText: `He feels that he's (emotionally) old enough to love Zeki Müren, one of the pillars of Turkish raki culture.`,
+    link: 'https://open.spotify.com/track/0rb2T3VwlC9jcA02UojwtE?si=hIFozMI0Rt2QFbV2u2ch3Q'
   },
 ];
 
@@ -108,6 +111,7 @@ export async function getNext(res: number, timeout = 30000): Promise<{
   id: string;
   resolutions: number[];
   headingText: string;
+  link?: string;
   baseImagePath: string;
   faceData: any;
   overlayImagePath: string;

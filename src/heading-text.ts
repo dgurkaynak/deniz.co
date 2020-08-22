@@ -1,11 +1,18 @@
 import times from 'lodash/times';
 
 
-const defaultText = 'Deniz Gürkaynak';
-const headingTextEl = document.getElementById('heading-text');
+const defaultTitle = 'Deniz Gürkaynak';
+const headingEl = document.getElementById('heading');
+const headingTitleEl = document.getElementById('heading-title');
 let b: any;
-let isLocked = false;
-let nonLockedText = '';
+let isShowingDefaultText = false;
+let title = '';
+let link = '';
+
+const headingLinkEl = document.createElement('a');
+headingLinkEl.id = 'heading-link';
+headingLinkEl.textContent = '[?]';
+headingLinkEl.setAttribute('target', '_blank');
 
 const mainElement = document.getElementById('main');
 const lineHeight = 21;
@@ -13,107 +20,139 @@ const correctMaxLineHeightInterval = setInterval(correctMaxLineHeight, 500);
 
 
 /**
- * Main methods
+ * When about text is opened, show the default text w/ baffle animation.
  */
-export function lock() {
-  if (isLocked) {
+export function showDefaultTitle() {
+  if (isShowingDefaultText) {
     return;
   }
 
-  isLocked = true;
+  isShowingDefaultText = true;
   stopAllAnimations();
-  b && b.text(() => defaultText);
+  b && b.text(() => defaultTitle);
   b && b.reveal(500);
+
+  headingLinkEl.parentElement?.removeChild(headingLinkEl);
 }
 
 
-export function unlock() {
-  if (!isLocked) {
+/**
+ * When about text is collapsed, show the current image's text.
+ */
+export function returnToLastState() {
+  if (!isShowingDefaultText) {
     return;
   }
 
   stopAllAnimations();
-  b && b.text(() => nonLockedText);
+  b && b.text(() => title);
   b && b.reveal(500);
-  isLocked = false;
+  isShowingDefaultText = false;
+
+  if (link) {
+    headingEl.appendChild(headingLinkEl);
+  } else {
+    headingLinkEl.parentElement?.removeChild(headingLinkEl);
+  }
 }
 
 
+/**
+ * Stops all the animations.
+ */
 export function stopAllAnimations() {
   stopThreeDotLoading();
-  stopBaffling();
+  stopBaffleAnimation();
 }
 
 
+/**
+ * Checks heading element's offset height and estimate the line count.
+ * Set it as an attribute, so css can adjust it's max-height (check style.css).
+ */
 export function correctMaxLineHeight() {
-  const lineCount = Math.floor(headingTextEl.offsetHeight / lineHeight);
+  const lineCount = Math.floor(headingEl.offsetHeight / lineHeight);
   mainElement.setAttribute('data-line-count', `${lineCount}`);
 }
 
 
 /**
- * Baffle stuff
+ * Gracefully imports baffle library and initalizes it.
+ * So, if it's already initalized, NOOP.
  */
-export async function prepareBaffleIfNecessary() {
+export async function init() {
   if (!b) {
     const { default: baffle } = await import(/* webpackChunkName: "baffle" */ 'baffle');
-    b = baffle(headingTextEl);
+    b = baffle(headingTitleEl);
   }
 }
 
-export async function startBaffling(text?: string) {
-  await prepareBaffleIfNecessary();
+/**
+ * Starts baffle animation.
+ */
+export async function startBaffleAnimation() {
+  await init();
 
-  if (isLocked) {
-    if (text) nonLockedText = text;
+  if (isShowingDefaultText) {
     return;
   }
 
-  if (text) {
-    nonLockedText = text;
-    b.text(() => nonLockedText);
-  }
   b.start();
 }
 
 
-export async function stopBaffling() {
-  await prepareBaffleIfNecessary();
+/**
+ * Stops baffle animation.
+ */
+async function stopBaffleAnimation() {
+  await init();
   b.stop();
 }
 
 
-export async function baffleReveal(text: string, duration: number) {
-  await prepareBaffleIfNecessary();
+/**
+ * Updates the title w/ baffle animation, and [?] link.
+ */
+export async function update(options: {
+  title: string,
+  link?: string,
+  baffleAnimationDuration: number
+}) {
+  await init();
 
-  if (isLocked) {
-    if (text) nonLockedText = text;
+  title = options.title;
+  link = options.link;
+  headingLinkEl.href = options.link || '';
+
+  if (isShowingDefaultText) {
     return;
   }
 
-  if (text) {
-    nonLockedText = text;
-    b.text(() => nonLockedText);
+  b.text(() => title);
+  b.reveal(options.baffleAnimationDuration);
+
+  if (link) {
+    headingEl.appendChild(headingLinkEl);
+  } else {
+    headingLinkEl.parentElement?.removeChild(headingLinkEl);
   }
-  b.reveal(duration);
 }
 
 
 /**
- * Three dot loading.
+ * Three dot loading animation stuff.
  */
 const threeDotUpdateIntervalDuration = 500;
 let threeDotUpdateInterval: any;
 let threeDotUpdateCount = 0;
 
 export function startThreeDotLoading() {
-  if (isLocked) {
+  if (isShowingDefaultText) {
     return;
   }
 
   threeDotUpdateCount = 0
-  nonLockedText = defaultText;
-  headingTextEl.textContent = nonLockedText;
+  headingTitleEl.textContent = defaultTitle;
   clearTimeout(threeDotUpdateInterval);
   threeDotUpdateInterval = setTimeout(onThreeDotLoadingTick, threeDotUpdateIntervalDuration);
 }
@@ -122,8 +161,7 @@ export function startThreeDotLoading() {
 function onThreeDotLoadingTick() {
   threeDotUpdateCount = (threeDotUpdateCount % 3) + 1;
   const dotStr = times(threeDotUpdateCount, () => `.`).join('');
-  nonLockedText = defaultText + dotStr;
-  headingTextEl.textContent = nonLockedText;
+  headingTitleEl.textContent = defaultTitle + dotStr;
   threeDotUpdateInterval = setTimeout(onThreeDotLoadingTick, threeDotUpdateIntervalDuration);
 }
 

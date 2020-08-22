@@ -77,15 +77,22 @@ main.opened {
   max-height: 100% !important;
 }
 
-#heading-text {
+#heading {
   font-size: 1.17em;
   margin: 0.6em;
   display: inline-block;
 }
 
 /* If js enabled, there is about button, so add a margin */
-.javascript-enabled #heading-text {
+.javascript-enabled #heading {
   margin: 0.6em 3em 0.6em 0.6em;
+}
+
+#heading-link {
+  padding: 0.025em 0.1em 0.1em 0.1em;
+  margin: 0;
+  position: relative;
+  top: -0.05em;
 }
 
 #about-button {

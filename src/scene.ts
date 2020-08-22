@@ -75,7 +75,7 @@ console.log = _consoleLog;
 
 // DOM elements
 const mainElement = document.getElementById('main');
-const headingTextElement = document.getElementById('heading-text');
+const headingElement = document.getElementById('heading');
 // About button
 const aboutButtonElement = document.createElement('span');
 aboutButtonElement.id = 'about-button';
@@ -129,12 +129,16 @@ async function main() {
   // Three dot loading animation is started in index, so not start again
   const [newScene] = await Promise.all([
     prepareNextPreprocessImageWithRetry(),
-    HeadingText.prepareBaffleIfNecessary()
+    HeadingText.init()
   ]);
-  mainElement.insertBefore(aboutButtonElement, headingTextElement.nextSibling);
+  mainElement.insertBefore(aboutButtonElement, headingElement.nextSibling);
   mainElement.classList.remove('opened');
   HeadingText.stopThreeDotLoading();
-  HeadingText.baffleReveal(newScene.imageData.headingText, IMAGE_ANIMATE_IN_DURATION);
+  HeadingText.update({
+    title: newScene.imageData.headingText,
+    baffleAnimationDuration: IMAGE_ANIMATE_IN_DURATION,
+    link: newScene.imageData.link
+  });
   await addAndSlideInImage(newScene.sceneImage);
   sceneImage = newScene.sceneImage;
 
@@ -398,12 +402,12 @@ function setAboutTextVisibility(isVisible: boolean) {
     if (isOpened) return;
     mainElement.classList.add('opened');
     aboutButtonElement.textContent = 'Close';
-    HeadingText.lock();
+    HeadingText.showDefaultTitle();
   } else {
     if (!isOpened) return;
     mainElement.classList.remove('opened');
     aboutButtonElement.textContent = 'About';
-    HeadingText.unlock();
+    HeadingText.returnToLastState();
   }
 }
 
@@ -488,7 +492,7 @@ async function loadNextSceneImage() {
   // If we've just closed about text just above, `baffle.reveal` method will run on next tick.
   // So, in order to override baffle.reveal command, we also start baffling on the next tick.
   setTimeout(() => {
-    HeadingText.startBaffling();
+    HeadingText.startBaffleAnimation();
   }, 0);
 
   const [ newScene ] = await Promise.all([
@@ -496,7 +500,11 @@ async function loadNextSceneImage() {
     slideOutAndDisposeImage(oldSceneImage)
   ]);
 
-  HeadingText.baffleReveal(newScene.imageData.headingText, IMAGE_ANIMATE_IN_DURATION);
+  HeadingText.update({
+    title: newScene.imageData.headingText,
+    baffleAnimationDuration: IMAGE_ANIMATE_IN_DURATION,
+    link: newScene.imageData.link
+  });
   await addAndSlideInImage(newScene.sceneImage);
   sceneImage = newScene.sceneImage;
   isNewImageLoading = false;
@@ -630,14 +638,18 @@ async function throwImageAndLoadNext(throwData: {angle: number, velocity: number
 
   clearTimeout(sceneImageInitialThrowTimeout);
 
-  HeadingText.startBaffling();
+  HeadingText.startBaffleAnimation();
 
   const [ newScene ] = await Promise.all([
     prepareNextPreprocessImageWithRetry(),
     throwAnimateAndDispose(oldsceneImage, throwData)
   ]);
 
-  HeadingText.baffleReveal(newScene.imageData.headingText, IMAGE_ANIMATE_IN_DURATION);
+  HeadingText.update({
+    title: newScene.imageData.headingText,
+    baffleAnimationDuration: IMAGE_ANIMATE_IN_DURATION,
+    link: newScene.imageData.link
+  });
   await addAndSlideInImage(newScene.sceneImage);
   sceneImage = newScene.sceneImage;
   isNewImageLoading = false;
@@ -807,14 +819,17 @@ async function onFilesDroppedOrSelected(fileList: FileList) {
   const oldSceneImage = sceneImage;
   sceneImage = null;
 
-  HeadingText.startBaffling();
+  HeadingText.startBaffleAnimation();
   await Promise.all([
     newSceneImage.init(),
     slideOutAndDisposeImage(oldSceneImage)
   ]);
 
   // TODO: Prepare random messages for custom
-  HeadingText.baffleReveal('Voila', IMAGE_ANIMATE_IN_DURATION);
+  HeadingText.update({
+    title: 'Voila',
+    baffleAnimationDuration: IMAGE_ANIMATE_IN_DURATION
+  });
   await addAndSlideInImage(newSceneImage);
 
   sceneImage = newSceneImage;
