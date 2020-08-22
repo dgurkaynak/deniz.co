@@ -18,7 +18,7 @@
   },
   "keywords": [],
   "author": "Deniz Gurkaynak <dgurkaynak@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "private": true,
   "bugs": {
     "url": "https://github.com/dgurkaynak/deniz.co/issues"
