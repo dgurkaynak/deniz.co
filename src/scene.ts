@@ -115,17 +115,17 @@ let swapHelper: {
   processImage(imageFile: File): Promise<FaceSwapResult>
 };
 
+// Print github repo to console
+console.log(
+  '%cHey there, if you\'re interested: source code of this website is avaliable on https://github.com/dgurkaynak/deniz.co',
+  'font-size: 16px;'
+);
+
 
 /**
  * Main function
  */
 async function main() {
-  // Print github repo to console
-  console.log(
-    '%cHey there, if you\'re interested: source code of this website is avaliable on https://github.com/dgurkaynak/deniz.co',
-    'font-size: 16px;'
-  );
-
   // Three dot loading animation is started in index, so not start again
   const [newScene] = await Promise.all([
     prepareNextPreprocessImage(),
@@ -164,8 +164,8 @@ async function main() {
 /**
  * Fetches data json and images, creates & returns prepared SceneImage.
  */
-async function prepareNextPreprocessImage() {
-  const imageData = await getNextPreprocessedImageData(textureSize);
+async function prepareNextPreprocessImage(timeout = 10000) {
+  const imageData = await getNextPreprocessedImageData(textureSize, timeout);
 
   // Build face landmarks
   const faceLandmarksArr: FaceLandmarks[] = imageData.faceData.faces.map((rawFaceData: any) => {
@@ -177,8 +177,8 @@ async function prepareNextPreprocessImage() {
     baseImage,
     overlayImage
   ] = await Promise.all([
-    loadImage(imageData.baseImagePath),
-    loadImage(imageData.overlayImagePath)
+    loadImage(imageData.baseImagePath, timeout),
+    loadImage(imageData.overlayImagePath, timeout)
   ]);
 
   const swapResult = new FaceSwapResult(

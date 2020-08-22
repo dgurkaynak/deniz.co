@@ -104,7 +104,14 @@ const imageIds = images.map(i => i.id);
 const queue = shuffle(imageIds);
 
 
-export async function getNext(res: number) {
+export async function getNext(res: number, timeout = 30000): Promise<{
+  id: string;
+  resolutions: number[];
+  headingText: string;
+  baseImagePath: string;
+  faceData: any;
+  overlayImagePath: string;
+}> {
   const imageId = queue.shift();
   if (queue.length == 0) queue.push(...shuffle(imageIds));
 
@@ -113,19 +120,39 @@ export async function getNext(res: number) {
   // Get maximum resolution
   res = Math.max(...data.resolutions.filter(r => r <= res));
 
-  const [
-    {default: baseImagePath},
-    {default: faceData},
-    {default: overlayImagePath}
-  ] = await Promise.all([
-    import(/* webpackMode: "eager" */ `./assets/preprocessed/${imageId}/${res}x${res}/base.jpg`),
-    import(`./assets/preprocessed/${imageId}/${res}x${res}/data.json`),
-    import(/* webpackMode: "eager" */ `./assets/preprocessed/${imageId}/${res}x${res}/overlay.png`),
-  ]);
-  return {
-    ...data,
-    baseImagePath,
-    faceData,
-    overlayImagePath
-  };
+  return new Promise(async (resolve, reject) => {
+    let isTimeoutExceeded = false;
+
+    const timeoutId = setTimeout(() => {
+      isTimeoutExceeded = true;
+      reject(new Error(`Timeout (${timeout} ms) exceeded while getting next preprocessed image: ${imageId} (${res}x${res})`));
+    }, timeout);
+
+    try {
+      const [
+        {default: baseImagePath},
+        {default: faceData},
+        {default: overlayImagePath}
+      ] = await Promise.all([
+        import(/* webpackMode: "eager" */ `./assets/preprocessed/${imageId}/${res}x${res}/base.jpg`),
+        import(`./assets/preprocessed/${imageId}/${res}x${res}/data.json`),
+        import(/* webpackMode: "eager" */ `./assets/preprocessed/${imageId}/${res}x${res}/overlay.png`),
+      ]);
+
+      if (isTimeoutExceeded) return;
+      clearTimeout(timeoutId);
+
+      resolve({
+        ...data,
+        baseImagePath,
+        faceData,
+        overlayImagePath
+      });
+    } catch (err) {
+      if (isTimeoutExceeded) return;
+      clearTimeout(timeoutId);
+
+      reject(err);
+    }
+  });
 }

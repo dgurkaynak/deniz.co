@@ -1,9 +1,27 @@
-export async function loadImage(src: string): Promise<HTMLImageElement> {
+export async function loadImage(src: string, timeout = 30000): Promise<HTMLImageElement> {
   const image = new Image();
 
   return new Promise((resolve, reject) => {
-    image.onload = () => resolve(image);
-    image.onerror = reject;
+    let isTimeoutExceeded = false;
+    const timeoutId = setTimeout(() => {
+      isTimeoutExceeded = true;
+      reject(new Error(`Timeout (${timeout} ms) exceeded while loading image: ${src}`));
+    }, timeout);
+
+    image.onload = () => {
+      if (isTimeoutExceeded) return;
+      clearTimeout(timeoutId);
+
+      resolve(image);
+    };
+
+    image.onerror = (err) => {
+      if (isTimeoutExceeded) return;
+      clearTimeout(timeoutId);
+
+      reject(err);
+    };
+
     image.src = src;
   });
 }
