@@ -1,5 +1,5 @@
 import './style.css';
-import * as HeadingText from './heading-text';
+import * as Heading from './heading';
 
 
 
@@ -10,7 +10,7 @@ document.body.classList.add('javascript-enabled');
 async function main() {
   // If webgl is supported, load scene
   if (isWebGLSupported) {
-    HeadingText.startThreeDotLoading();
+    Heading.startThreeDotLoading();
     await import(/* webpackChunkName: "scene" */ './scene');
   }
 }

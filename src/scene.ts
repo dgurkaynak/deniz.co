@@ -9,7 +9,7 @@ import { loadImage, sleep } from './utils';
 import FaceLandmarks from './face-landmarks';
 import SceneImage from './scene-image';
 import { getNext as getNextPreprocessedImageData } from './preprocessed-data';
-import * as HeadingText from './heading-text';
+import * as Heading from './heading';
 import GestureHandler from './gesture-handler';
 import { disableBodyScroll } from 'body-scroll-lock';
 import * as BottomText from './bottom-text';
@@ -129,12 +129,12 @@ async function main() {
   // Three dot loading animation is started in index, so not start again
   const [newScene] = await Promise.all([
     prepareNextPreprocessImageWithRetry(),
-    HeadingText.init()
+    Heading.init()
   ]);
   mainElement.insertBefore(aboutButtonElement, headingElement.nextSibling);
   mainElement.classList.remove('opened');
-  HeadingText.stopThreeDotLoading();
-  HeadingText.update({
+  Heading.stopThreeDotLoading();
+  Heading.update({
     title: newScene.imageData.headingText,
     baffleAnimationDuration: IMAGE_ANIMATE_IN_DURATION,
     link: newScene.imageData.link
@@ -402,12 +402,12 @@ function setAboutTextVisibility(isVisible: boolean) {
     if (isOpened) return;
     mainElement.classList.add('opened');
     aboutButtonElement.textContent = 'Close';
-    HeadingText.showDefaultTitle();
+    Heading.showDefaultTitle();
   } else {
     if (!isOpened) return;
     mainElement.classList.remove('opened');
     aboutButtonElement.textContent = 'About';
-    HeadingText.returnToLastState();
+    Heading.returnToLastState();
   }
 }
 
@@ -492,7 +492,7 @@ async function loadNextSceneImage() {
   // If we've just closed about text just above, `baffle.reveal` method will run on next tick.
   // So, in order to override baffle.reveal command, we also start baffling on the next tick.
   setTimeout(() => {
-    HeadingText.startBaffleAnimation();
+    Heading.startBaffleAnimation();
   }, 0);
 
   const [ newScene ] = await Promise.all([
@@ -500,7 +500,7 @@ async function loadNextSceneImage() {
     slideOutAndDisposeImage(oldSceneImage)
   ]);
 
-  HeadingText.update({
+  Heading.update({
     title: newScene.imageData.headingText,
     baffleAnimationDuration: IMAGE_ANIMATE_IN_DURATION,
     link: newScene.imageData.link
@@ -638,14 +638,14 @@ async function throwImageAndLoadNext(throwData: {angle: number, velocity: number
 
   clearTimeout(sceneImageInitialThrowTimeout);
 
-  HeadingText.startBaffleAnimation();
+  Heading.startBaffleAnimation();
 
   const [ newScene ] = await Promise.all([
     prepareNextPreprocessImageWithRetry(),
     throwAnimateAndDispose(oldsceneImage, throwData)
   ]);
 
-  HeadingText.update({
+  Heading.update({
     title: newScene.imageData.headingText,
     baffleAnimationDuration: IMAGE_ANIMATE_IN_DURATION,
     link: newScene.imageData.link
@@ -819,14 +819,14 @@ async function onFilesDroppedOrSelected(fileList: FileList) {
   const oldSceneImage = sceneImage;
   sceneImage = null;
 
-  HeadingText.startBaffleAnimation();
+  Heading.startBaffleAnimation();
   await Promise.all([
     newSceneImage.init(),
     slideOutAndDisposeImage(oldSceneImage)
   ]);
 
   // TODO: Prepare random messages for custom
-  HeadingText.update({
+  Heading.update({
     title: 'Voila',
     baffleAnimationDuration: IMAGE_ANIMATE_IN_DURATION
   });
