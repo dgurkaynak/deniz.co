@@ -128,7 +128,7 @@ console.log(
 async function main() {
   // Three dot loading animation is started in index, so not start again
   const [newScene] = await Promise.all([
-    prepareNextPreprocessImage(),
+    prepareNextPreprocessImageWithRetry(),
     HeadingText.prepareBaffleIfNecessary()
   ]);
   mainElement.insertBefore(aboutButtonElement, headingTextElement.nextSibling);
@@ -158,6 +158,21 @@ async function main() {
 
   // TODO: Check face-api.js is working
   BottomText.init(onFilesDroppedOrSelected);
+}
+
+
+/**
+ * Tries to prepare next preprocessed image, if it's failed for
+ * some reason, try to load next one.
+ */
+function prepareNextPreprocessImageWithRetry(): ReturnType<typeof prepareNextPreprocessImage> {
+  return prepareNextPreprocessImage().catch(async (err) => {
+    // Cooldown a little
+    await sleep(500);
+
+    // Retry
+    return prepareNextPreprocessImageWithRetry();
+  });
 }
 
 
@@ -477,7 +492,7 @@ async function loadNextSceneImage() {
   }, 0);
 
   const [ newScene ] = await Promise.all([
-    prepareNextPreprocessImage(),
+    prepareNextPreprocessImageWithRetry(),
     slideOutAndDisposeImage(oldSceneImage)
   ]);
 
@@ -618,7 +633,7 @@ async function throwImageAndLoadNext(throwData: {angle: number, velocity: number
   HeadingText.startBaffling();
 
   const [ newScene ] = await Promise.all([
-    prepareNextPreprocessImage(),
+    prepareNextPreprocessImageWithRetry(),
     throwAnimateAndDispose(oldsceneImage, throwData)
   ]);
 
