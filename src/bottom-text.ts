@@ -11,8 +11,8 @@ enum State {
 
 const Text = {
   IDLE: detectIt.primaryInput == 'touch' ?
-    'Do not click here to upload an image' :
-    'Do not drag an image here',
+    'Do not click here to select an image' :
+    'Do not drop an image here',
   IDLE_HOVER: `Don't worry, it all happens in your browser`,
   NOT_SUPPORTED_BROWSER: 'This browser is too old, try latest Chrome',
   PROCESSING: 'Processing...'
