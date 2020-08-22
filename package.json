@@ -1,6 +1,6 @@
 {
   "name": "deniz.co",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "Personal home page of Deniz Gurkaynak",
   "main": "index.js",
   "scripts": {
