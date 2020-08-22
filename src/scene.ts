@@ -658,37 +658,6 @@ async function throwImageAndLoadNext(throwData: {angle: number, velocity: number
 
 
 /**
- * Listen for keyboard arrow keys
- */
-const onKeyDown = (e: KeyboardEvent) => {
-  const KeyCode = {
-    LEFT: 37,
-    UP: 38,
-    RIGHT: 39,
-    DOWN: 40
-  };
-
-  switch(e.keyCode) {
-    case KeyCode.RIGHT: {
-      loadNextSceneImage();
-      return;
-    }
-
-    case KeyCode.DOWN: {
-      setAboutTextVisibility(true);
-      return;
-    }
-
-    case KeyCode.UP: {
-      setAboutTextVisibility(false);
-      return;
-    }
-  }
-};
-document.addEventListener('keydown', onKeyDown, false);
-
-
-/**
  * Listen window resize
  */
 const onWindowResize = throttle(() => {
