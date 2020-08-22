@@ -2,6 +2,7 @@ import FaceSwapResult from './face-swap-result';
 import * as THREE from 'three';
 import { canvasToURL, sleep } from './utils';
 import findIndex from 'lodash/findIndex';
+import values from 'lodash/values';
 import * as TWEEN from '@tweenjs/tween.js';
 import Animator from './animator';
 
@@ -288,7 +289,7 @@ export default class SceneImage {
     this.faceVertices = null;
     this.faceBoundingBoxesUV = null;
 
-    Object.values(this.faceTweens).forEach(tween => tween.stop());
+    values(this.faceTweens).forEach(tween => tween.stop());
     this.faceTweens = {};
 
     clearTimeout(this.autoWiggleTimeout);
