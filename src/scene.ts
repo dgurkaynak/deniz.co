@@ -135,7 +135,7 @@ async function main() {
   mainElement.classList.remove('opened');
   Heading.stopThreeDotLoading();
   Heading.update({
-    title: newScene.imageData.headingText,
+    title: newScene.imageData.title,
     baffleAnimationDuration: IMAGE_ANIMATE_IN_DURATION,
     link: newScene.imageData.link
   });
@@ -501,7 +501,7 @@ async function loadNextSceneImage() {
   ]);
 
   Heading.update({
-    title: newScene.imageData.headingText,
+    title: newScene.imageData.title,
     baffleAnimationDuration: IMAGE_ANIMATE_IN_DURATION,
     link: newScene.imageData.link
   });
@@ -646,7 +646,7 @@ async function throwImageAndLoadNext(throwData: {angle: number, velocity: number
   ]);
 
   Heading.update({
-    title: newScene.imageData.headingText,
+    title: newScene.imageData.title,
     baffleAnimationDuration: IMAGE_ANIMATE_IN_DURATION,
     link: newScene.imageData.link
   });
