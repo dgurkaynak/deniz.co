@@ -1,5 +1,7 @@
 import find from 'lodash/find';
 import shuffle from 'lodash/shuffle';
+import sample from 'lodash/sample';
+import pull from 'lodash/pull';
 
 
 const images = [
@@ -11,7 +13,8 @@ const images = [
   {
     id: 'acdc',
     resolutions: [512, 1024, 1536],
-    title: `Critics like to say every AC/DC record sounds the same, but he doesn't agree.`
+    title: `Critics like to say every AC/DC record sounds the same, but he doesn't agree.`,
+    canBeFirst: true
   },
   {
     id: 'adam',
@@ -21,7 +24,8 @@ const images = [
   {
     id: 'apollo11',
     resolutions: [512, 1024],
-    title: `He wanted to be an astronaut, but things didn't go well.`
+    title: `He wanted to be an astronaut, but things didn't go well.`,
+    canBeFirst: true
   },
   {
     id: 'claude-shannon',
@@ -51,7 +55,8 @@ const images = [
   {
     id: 'friends',
     resolutions: [512, 1024, 1536],
-    title: 'He thinks that Monica > Rachel > Phoebe.'
+    title: 'He thinks that Monica > Rachel > Phoebe.',
+    canBeFirst: true
   },
   {
     id: 'gnr',
@@ -87,7 +92,8 @@ const images = [
   {
     id: 'seinfeld',
     resolutions: [512, 1024, 1536],
-    title: 'He deeply appreciates nothingness. One of his favorite tv shows is about nothing. Because nothing is a prerequisite for something.'
+    title: 'He deeply appreciates nothingness. One of his favorite tv shows is about nothing. Because nothing is a prerequisite for something.',
+    canBeFirst: true
   },
   {
     id: 'tia-toomey',
@@ -104,7 +110,13 @@ const images = [
 ];
 
 const imageIds = images.map(i => i.id);
-const queue = shuffle(imageIds);
+
+// Set-up initial queue
+const firstImageId = sample(images.filter(i => !!i.canBeFirst).map(i => i.id));
+const queue = [
+  firstImageId,
+  ...pull(imageIds, firstImageId)
+];
 
 
 export async function getNext(res: number, timeout = 30000): Promise<{
