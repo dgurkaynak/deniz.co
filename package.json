@@ -59,7 +59,7 @@
     "face-api.js": "0.19.0",
     "fast-glob": "2.2.6",
     "file-saver": "^2.0.2",
-    "jszip": "^3.2.1",
+    "jszip": "^3.7.0",
     "lodash": "4.17.11",
     "normalize.css": "8.0.1",
     "stats.js": "^0.17.0",
