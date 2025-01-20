@@ -1,3 +1,4 @@
+import './olay';
 import * as THREE from 'three';
 import throttle from 'lodash/throttle';
 import * as TWEEN from '@tweenjs/tween.js';
@@ -13,10 +14,6 @@ import * as Heading from './heading';
 import GestureHandler from './gesture-handler';
 import { disableBodyScroll } from 'body-scroll-lock';
 import * as BottomText from './bottom-text';
-import Countly from './countly-web-sdk';
-
-
-
 
 // Consts
 const IMAGE_ANIMATE_IN_DURATION = 1000;
@@ -25,19 +22,6 @@ const IMAGE_ANIMATE_BACK_TO_CENTER_DURATION = 100;
 const IMAGE_DISTANCE_FROM_CAMERA = 1;
 const ANIMATOR_EXTRA_DURATION = 500; // Some times tween.onComplete does not fire.
 const IMAGE_INITIAL_THROW_TIMEOUT = 10000;
-
-
-// Set-up countly
-Countly.init({
-  debug: false,
-  app_key: '52d030e543075a2a9b74a38f801ebd4d89b893c8',
-  url: 'https://countly.deniz.co'
-});
-Countly.track_sessions();
-Countly.track_pageview();
-Countly.track_links();
-Countly.track_errors();
-
 
 // Disable body scroll
 disableBodyScroll(document.body);
@@ -211,10 +195,7 @@ async function prepareNextPreprocessImage(timeout = 10000) {
   const sceneImage = new SceneImage(swapResult);
   await sceneImage.init();
 
-  Countly.q.push(['add_event', {
-    'key': 'preprocessedImageDisplay',
-    'segmentation': { 'id': imageData.id }
-  }]);
+  window.olay.addEvent('preprocessedImageDisplay', { id: imageData.id });
 
   return {
     sceneImage,
@@ -768,13 +749,10 @@ async function onFilesDroppedOrSelected(fileList: FileList) {
 
   const faceSwapResult = await swapHelper.processImage(images[0].file);
 
-  Countly.q.push(['add_event', {
-    'key': 'imageDrop',
-    'segmentation': {
-      'fileName': images[0].name,
-      'faceCount': faceSwapResult.faces.length
-    }
-  }]);
+  window.olay.addEvent('imageDrop', {
+    fileName: images[0].name,
+    faceCount: faceSwapResult.faces.length
+  });
 
   if (faceSwapResult.faces.length == 0) {
     await BottomText.displayTemporaryMessage('No face found :/', 3000);
